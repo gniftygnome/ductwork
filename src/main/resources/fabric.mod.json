@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "ductwork",
+  "version": "${version}",
+  "name": "Ductwork",
+  "description": "Feel free to stick stuff in my ducts any time you like!",
+  "authors": [
+    "GniftyGnome"
+  ],
+  "contact": {
+    "website": "http://www.gnomecraft.net/",
+    "repo": "https://github.com/gniftygnome/ductwork"
+  },
+  "license": "MIT",
+  "icon": "assets/ductwork/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.gnomecraft.ductwork.DuctworkClient"
+    ],
+    "main": [
+      "net.gnomecraft.ductwork.Ductwork"
+    ]
+  },
+  "mixins": [
+    "ductwork.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.12",
+    "fabric": "*",
+    "minecraft": "1.18.*"
+  }
+}

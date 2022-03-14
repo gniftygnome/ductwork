@@ -1,0 +1,31 @@
+{
+  "multipart": [
+    { "when": { "enabled": true,  "facing": "north" }, "apply": { "model": "ductwork:block/damper" } },
+    { "when": { "enabled": true,  "facing": "east" },  "apply": { "model": "ductwork:block/damper", "y":  90 } },
+    { "when": { "enabled": true,  "facing": "south" }, "apply": { "model": "ductwork:block/damper", "y": 180 } },
+    { "when": { "enabled": true,  "facing": "west" },  "apply": { "model": "ductwork:block/damper", "y": 270 } },
+    { "when": { "enabled": true,  "facing": "down" },  "apply": { "model": "ductwork:block/damper", "x":  90 } },
+    { "when": { "enabled": true,  "facing": "up" },    "apply": { "model": "ductwork:block/damper", "x": 270 } },
+
+    { "when": { "enabled": false, "facing": "north" }, "apply": { "model": "ductwork:block/damper" } },
+    { "when": { "enabled": false, "facing": "east" },  "apply": { "model": "ductwork:block/damper", "y":  90 } },
+    { "when": { "enabled": false, "facing": "south" }, "apply": { "model": "ductwork:block/damper", "y": 180 } },
+    { "when": { "enabled": false, "facing": "west" },  "apply": { "model": "ductwork:block/damper", "y": 270 } },
+    { "when": { "enabled": false, "facing": "down" },  "apply": { "model": "ductwork:block/damper", "x":  90 } },
+    { "when": { "enabled": false, "facing": "up" },    "apply": { "model": "ductwork:block/damper", "x": 270 } },
+
+    { "when": { "enabled": true,  "facing": "north" }, "apply": { "model": "ductwork:block/damper_handle" } },
+    { "when": { "enabled": true,  "facing": "east" },  "apply": { "model": "ductwork:block/damper_handle", "y":  90 } },
+    { "when": { "enabled": true,  "facing": "south" }, "apply": { "model": "ductwork:block/damper_handle", "y": 180 } },
+    { "when": { "enabled": true,  "facing": "west" },  "apply": { "model": "ductwork:block/damper_handle", "y": 270 } },
+    { "when": { "enabled": true,  "facing": "down" },  "apply": { "model": "ductwork:block/damper_handle", "x":  90 } },
+    { "when": { "enabled": true,  "facing": "up" },    "apply": { "model": "ductwork:block/damper_handle", "x": 270 } },
+
+    { "when": { "enabled": false, "facing": "north" }, "apply": { "model": "ductwork:block/damper_handle",           "x":  90 } },
+    { "when": { "enabled": false, "facing": "east" },  "apply": { "model": "ductwork:block/damper_handle", "y":  90, "x":  90 } },
+    { "when": { "enabled": false, "facing": "south" }, "apply": { "model": "ductwork:block/damper_handle", "y": 180, "x": 270 } },
+    { "when": { "enabled": false, "facing": "west" },  "apply": { "model": "ductwork:block/damper_handle", "y": 270, "x": 270 } },
+    { "when": { "enabled": false, "facing": "down" },  "apply": { "model": "ductwork:block/damper_handle", "x": 180 } },
+    { "when": { "enabled": false, "facing": "up" },    "apply": { "model": "ductwork:block/damper_handle" } }
+  ]
+}

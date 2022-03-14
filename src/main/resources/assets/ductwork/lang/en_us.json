@@ -1,0 +1,9 @@
+{
+  "block.ductwork.collector": "Collector",
+  "block.ductwork.damper":    "Damper",
+  "block.ductwork.duct":      "Duct",
+
+  "item.ductwork.collector":  "Collector",
+  "item.ductwork.damper":     "Damper",
+  "item.ductwork.duct":       "Duct"
+}
