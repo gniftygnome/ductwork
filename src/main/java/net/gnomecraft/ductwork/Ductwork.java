@@ -50,8 +50,10 @@ public class Ductwork implements ModInitializer {
     public static final Identifier DamperBlockId = new Identifier(modId, "damper");
     public static final Identifier DuctBlockId = new Identifier(modId, "duct");
 
+    /* TODO: Revive this code when we're no longer beholden to Minecraft 1.18.1...
     public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier("ductwork", "ducts"));
     public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier("ductwork", "ducts"));
+     */
 
     @Override
     public void onInitialize() {

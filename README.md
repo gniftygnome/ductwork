@@ -3,6 +3,8 @@
 # Ductwork
 Simple duct-metaphor item distribution network mod
 
+Ductwork requires [Cooldown Coordinator](https://github.com/gniftygnome/cooldown-coordinator)!
+
 ## Features of Ductwork
 
 This mod provides three blocks which together implement a slight superset of
