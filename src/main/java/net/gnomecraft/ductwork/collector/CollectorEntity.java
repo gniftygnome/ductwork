@@ -1,5 +1,6 @@
 package net.gnomecraft.ductwork.collector;
 
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -16,6 +17,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -153,14 +155,26 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
         // Extraction (intake) on the opposite side, in the opposite direction...
         Direction intake = state.get(CollectorBlock.FACING).getOpposite();
         Storage<ItemVariant> targetStorage = ItemStorage.SIDED.find(world, pos, state, entity, intake);
+
+        // Try to find storage first.  This will also find stationary inventories.
         Storage<ItemVariant> sourceStorage = ItemStorage.SIDED.find(world, pos.offset(intake), intake.getOpposite());
 
-        // First try to pull from an attached storage or inventory.
+        // If we don't find storage, try to find an inventory like a hopper would.
+        // This will find mobile inventories (hopper or chest minecart, chest boat?, etc.).
+        // HopperBlockEntity.getInventoryAt() will pick one of the available mobile inventories at random.
+        if (sourceStorage == null) {
+            Inventory sourceInventory =  HopperBlockEntity.getInventoryAt(world, pos.offset(intake));
+            if (sourceInventory != null) {
+                sourceStorage = InventoryStorage.of(sourceInventory, intake.getOpposite());
+            }
+        }
+
+        // Try to pull from any discovered storage or inventory...
         if (sourceStorage != null && targetStorage != null) {
             return (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0);
         }
 
-        // Then if nothing was attached, try to pull entities through the intake of the collector.
+        // Then if no inventory was found, try to pull entities through the intake of the collector.
         // We implement the Hopper interface so we can do this small bit of code reuse.
         for (ItemEntity itemEntity : HopperBlockEntity.getInputItemEntities(world, entity)) {
             if (HopperBlockEntity.extract(entity, itemEntity)) {
@@ -168,6 +182,7 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
             }
         }
 
+        // At this point no items could be found by any means and pull() has moved nothing.
         return false;
     }
 

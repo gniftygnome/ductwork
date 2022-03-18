@@ -29,6 +29,6 @@
     "fabricloader": ">=0.12.12",
     "fabric": "*",
     "minecraft": "1.18.*",
-    "cooldown-coordinator": "*"
+    "cooldown-coordinator": ">=0.2.1"
   }
 }

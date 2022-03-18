@@ -39,3 +39,20 @@ Collector blocks suck items from the inventory or space behind them like
 a Hopper, but unlike a Hopper they can be oriented in any direction. 
 Collectors deliver items from their inventory into the block in front of
 them just like other Duct blocks.
+
+## How to use Ductwork Blocks
+
+Placement of Ductwork blocks works a lot like placement of Minecraft Item
+Hoppers.  Point at the block the Ductwork block should deliver items to and
+place the Ductwork block.  The Ductwork block will be "facing" the side of
+the block you were pointing at.  This determines in which direction the
+Ductwork block will move items (the direction it is "facing").
+
+This can take some practice, particularly with Collector blocks!  Often,
+the easiest way to place Ductwork blocks is to start at the end of the duct
+(where it is delivering items) and work backward to the beginning (where it
+is receiving or collecting items).
+
+## For more Information and Examples
+
+See the [Ductwork wiki](https://github.com/gniftygnome/ductwork/wiki) for further documentation!
