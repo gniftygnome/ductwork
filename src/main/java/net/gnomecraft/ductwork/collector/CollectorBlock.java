@@ -87,7 +87,9 @@ public class CollectorBlock extends BlockWithEntity {
         if (!world.isClient) {
             if (player.isSneaking()) {
                 // Sneak + Use = toggle ENABLED
-                // flags == 0x4 means notify neighbors in server only
+                // flags == 0x4 means notify listeners in server only
+                //          0x2 means do update listeners (in general)
+                //          0x1 means do update comparators
                 world.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 4);
             } else {
                 // just Use = open GUI
@@ -144,7 +146,9 @@ public class CollectorBlock extends BlockWithEntity {
     private void updateEnabled(World world, BlockPos pos, BlockState state) {
         boolean enabled = !world.isReceivingRedstonePower(pos);
         if (enabled != state.get(ENABLED)) {
-            // flags == 0x4 means notify neighbors in server only
+            // flags == 0x4 means notify listeners in server only
+            //          0x2 means do update listeners (in general)
+            //          0x1 means do update comparators
             world.setBlockState(pos, state.with(ENABLED, enabled), 4);
         }
     }

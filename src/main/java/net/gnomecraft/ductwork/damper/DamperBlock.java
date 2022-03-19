@@ -87,7 +87,9 @@ public class DamperBlock extends BlockWithEntity {
         if (!world.isClient) {
             if (player.isSneaking()) {
                 // Sneak + Use = toggle ENABLED
-                // flags == 0x4 means notify neighbors in server only
+                // flags == 0x4 means notify listeners in server only
+                //          0x2 means do update listeners (in general)
+                //          0x1 means do update comparators
                 world.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 4);
             } else {
                 // just Use = open GUI
@@ -144,8 +146,11 @@ public class DamperBlock extends BlockWithEntity {
     private void updateEnabled(World world, BlockPos pos, BlockState state) {
         boolean enabled = !world.isReceivingRedstonePower(pos);
         if (enabled != state.get(ENABLED)) {
-            // flags == 0x4 means notify neighbors in server only
-            world.setBlockState(pos, state.with(ENABLED, enabled), 4);
+            BlockState newState = state.with(ENABLED, enabled);
+            // flags == 0x4 means don't update listeners in client
+            //          0x2 means do update listeners (in general)
+            //          0x1 means do update comparators
+            world.setBlockState(pos, newState, 2);
         }
     }
 

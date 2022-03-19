@@ -141,6 +141,9 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }
+                if (targetEntity != null) {
+                    targetEntity.markDirty();
+                }
 
                 return true;
             }
@@ -171,7 +174,12 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
 
         // Try to pull from any discovered storage or inventory...
         if (sourceStorage != null && targetStorage != null) {
-            return (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0);
+            boolean result =  (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0);
+            BlockEntity sourceEntity = world.getBlockEntity(pos.offset(intake));
+            if (sourceEntity != null) {
+                sourceEntity.markDirty();
+            }
+            return result;
         }
 
         // Then if no inventory was found, try to pull entities through the intake of the collector.

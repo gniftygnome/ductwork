@@ -112,6 +112,9 @@ public class DamperEntity extends LockableContainerBlockEntity implements Coordi
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }
+                if (targetEntity != null) {
+                    targetEntity.markDirty();
+                }
 
                 return true;
             }

@@ -112,6 +112,9 @@ public class DuctEntity extends LockableContainerBlockEntity implements Coordina
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }
+                if (targetEntity != null) {
+                    targetEntity.markDirty();
+                }
 
                 return true;
             }
