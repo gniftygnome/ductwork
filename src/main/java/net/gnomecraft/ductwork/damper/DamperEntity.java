@@ -149,18 +149,28 @@ public class DamperEntity extends LockableContainerBlockEntity implements Coordi
     }
 
     @Override
-    public boolean canInsert(int index, ItemStack stack, Direction direction) {
+    public boolean canInsert(int slot, ItemStack stack, Direction direction) {
         Direction facing = this.getCachedState().get(DamperBlock.FACING);
+
+        // insertion only via duct ends
         if (facing != null && (direction == facing || direction == facing.getOpposite())) {
-            return this.isValid(index, stack);
+            return this.isValid(slot, stack);
         } else {
             return false;
         }
     }
 
     @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return true;
+    public boolean canExtract(int slot, ItemStack stack, Direction direction) {
+        Direction facing = this.getCachedState().get(DamperBlock.FACING);
+        boolean enabled = this.getCachedState().get(DamperBlock.ENABLED);
+
+        // extraction via duct ends or when disabled via sides
+        if (direction == facing || direction == facing.getOpposite()) {
+            return true;
+        } else {
+            return !enabled;
+        }
     }
 
     @Override
