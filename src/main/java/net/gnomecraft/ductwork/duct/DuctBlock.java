@@ -22,6 +22,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -102,22 +103,7 @@ public class DuctBlock extends BlockWithEntity {
             if (direction.equals(state.get(FACING))) { continue; }
             BlockState neighbor = ctx.getWorld().getBlockState(ctx.getBlockPos().offset(direction));
 
-            // Connect to Ductwork blocks.
-            Block neighborBlock = neighbor.getBlock();
-            if ((neighborBlock instanceof CollectorBlock || neighborBlock instanceof DamperBlock || neighborBlock instanceof DuctBlock)
-                    && neighbor.get(FACING).equals(direction.getOpposite())) {
-                state = state.with(BooleanProperty.of(direction.toString()), true);
-            }
-            /* TODO: Replace the above with this once we can drop 1.18.1.
-            if (neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(FACING).equals(direction.getOpposite())) {
-                state = state.with(BooleanProperty.of(direction.toString()), true);
-            }
-             */
-
-            // Connect to Vanilla Hoppers.
-            if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
-                state = state.with(BooleanProperty.of(direction.toString()), true);
-            }
+            state = getStateWithNeighbor(state, direction, neighbor);
         }
 
         return state;
@@ -125,6 +111,12 @@ public class DuctBlock extends BlockWithEntity {
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighbor, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+        if (direction.equals(state.get(FACING))) { return state; }
+
+        return getStateWithNeighbor(state, direction, neighbor);
+    }
+
+    private BlockState getStateWithNeighbor(BlockState state, Direction direction, BlockState neighbor) {
         if (direction.equals(state.get(FACING))) { return state; }
 
         // Connect to Ductwork blocks.
@@ -141,6 +133,12 @@ public class DuctBlock extends BlockWithEntity {
 
         // Connect to Vanilla Hoppers.
         if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
+            return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        // Connect to Basalt Crusher Gravel Mills ... without knowing if they actually exist.
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
+                neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
