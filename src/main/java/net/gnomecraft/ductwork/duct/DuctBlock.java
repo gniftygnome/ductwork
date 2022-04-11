@@ -18,6 +18,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -131,14 +132,31 @@ public class DuctBlock extends BlockWithEntity {
         }
          */
 
-        // Connect to Vanilla Hoppers.
+        // Connect to Vanilla Hoppers (and some Hopper mods).
         if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
-        // Connect to Basalt Crusher Gravel Mills ... without knowing if they actually exist.
+        // Connect to Vanilla Droppers.
+        if (neighborBlock instanceof DropperBlock && neighbor.get(DropperBlock.FACING).equals(direction.getOpposite())) {
+            return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        /*
+         * The remaining connections are to blocks provided by mods to which we support connecting.
+         * We use a rather circuitous method of testing these blocks because our mod must compile
+         * and run without these other mods being present.
+         */
+
+        // Connect to Basalt Crusher Gravel Mills.
         if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
                 neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
+            return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        // Connect to Ducts mod Ducts.
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
+                neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
