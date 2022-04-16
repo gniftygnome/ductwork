@@ -18,6 +18,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
@@ -158,6 +159,15 @@ public class DuctBlock extends BlockWithEntity {
         if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
                 neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
             return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        // Connect to OmniHopper mod OmniHoppers.
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
+            EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
+
+            if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
+                return state.with(BooleanProperty.of(direction.toString()), true);
+            }
         }
 
         return state.with(BooleanProperty.of(direction.toString()), false);
