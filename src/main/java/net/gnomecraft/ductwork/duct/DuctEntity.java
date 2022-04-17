@@ -107,7 +107,7 @@ public class DuctEntity extends LockableContainerBlockEntity implements Coordina
         Storage<ItemVariant> targetStorage = ItemStorage.SIDED.find(world, pos.offset(facing), facing.getOpposite());
 
         if (sourceStorage != null && targetStorage != null) {
-            boolean targetEmpty = CooldownCoordinator.isItemStorageEmpty(targetStorage);
+            boolean targetEmpty = CooldownCoordinator.isStorageEmpty(targetStorage);
 
             if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0) {
                 if (targetEmpty) {
