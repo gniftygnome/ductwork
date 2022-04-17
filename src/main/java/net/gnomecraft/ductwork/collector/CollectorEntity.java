@@ -38,6 +38,7 @@ import java.util.Iterator;
  * NOTE: That means when collecting (extracting) everything is backward (FACING.getOpposite())...
  * NOTE:
  */
+@SuppressWarnings("UnstableApiUsage")
 public class CollectorEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Hopper, SidedInventory {
     public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
     private final static int[] SLOTS = new int[] {0, 1, 2, 3, 4};

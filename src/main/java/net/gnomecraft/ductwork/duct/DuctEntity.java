@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 
 import java.util.Iterator;
 
+@SuppressWarnings("UnstableApiUsage")
 public class DuctEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Inventory {
     public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
     private DefaultedList<ItemStack> inventory;
