@@ -119,7 +119,9 @@ public class DuctBlock extends BlockWithEntity {
     }
 
     private BlockState getStateWithNeighbor(BlockState state, Direction direction, BlockState neighbor) {
-        if (direction.equals(state.get(FACING))) { return state; }
+        if (direction.equals(state.get(FACING))) {
+            return state;
+        }
 
         // Connect to Ductwork blocks.
         Block neighborBlock = neighbor.getBlock();
@@ -168,6 +170,36 @@ public class DuctBlock extends BlockWithEntity {
             if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
                 return state.with(BooleanProperty.of(direction.toString()), true);
             }
+        }
+
+        // Connect to Flytre's Pipe mod Pipes
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
+
+            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
+            // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
+            return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        // Connect to Simple Pipes mod Pipes.
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
+            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
+
+            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
+            // So I'm being lazy here and just assuming they will...
+            return state.with(BooleanProperty.of(direction.toString()), true);
+        }
+
+        // Connect to Smart Pipes mod SmartPipes.
+        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
+
+            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
+            // So I'm being lazy here and just assuming they will...
+            return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
         return state.with(BooleanProperty.of(direction.toString()), false);
