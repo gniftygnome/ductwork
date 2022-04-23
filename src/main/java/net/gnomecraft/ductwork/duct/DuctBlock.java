@@ -1,8 +1,6 @@
 package net.gnomecraft.ductwork.duct;
 
 import net.gnomecraft.ductwork.Ductwork;
-import net.gnomecraft.ductwork.collector.CollectorBlock;
-import net.gnomecraft.ductwork.damper.DamperBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -123,17 +121,12 @@ public class DuctBlock extends BlockWithEntity {
             return state;
         }
 
-        // Connect to Ductwork blocks.
         Block neighborBlock = neighbor.getBlock();
-        if ((neighborBlock instanceof CollectorBlock || neighborBlock instanceof DamperBlock || neighborBlock instanceof DuctBlock)
-                && neighbor.get(FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-        /* TODO: Replace the above with this once we can drop 1.18.1.
+
+        // Connect to Ductwork blocks.
         if (neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(FACING).equals(direction.getOpposite())) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
-         */
 
         // Connect to Vanilla Hoppers (and some Hopper mods).
         if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {

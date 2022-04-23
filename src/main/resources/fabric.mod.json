@@ -28,7 +28,7 @@
   "depends": {
     "fabricloader": ">=0.12.12",
     "fabric": "*",
-    "minecraft": "1.18.*",
+    "minecraft": "1.18.2",
     "cooldown-coordinator": ">=0.3.0"
   }
 }
