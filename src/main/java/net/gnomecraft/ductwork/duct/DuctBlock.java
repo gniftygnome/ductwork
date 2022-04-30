@@ -1,18 +1,18 @@
 package net.gnomecraft.ductwork.duct;
 
 import net.gnomecraft.ductwork.Ductwork;
+import net.gnomecraft.ductwork.base.DuctworkBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -32,7 +32,7 @@ import net.minecraft.world.WorldAccess;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DuctBlock extends BlockWithEntity {
+public class DuctBlock extends DuctworkBlock {
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final BooleanProperty NORTH = BooleanProperty.of("north");
     public static final BooleanProperty EAST  = BooleanProperty.of("east");
@@ -74,10 +74,57 @@ public class DuctBlock extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
-            this.openContainer(world, pos, player);
+            ItemStack mainStack = player.getMainHandStack();
+            Direction facing = state.get(FACING);
+
+            if (player.isSneaking()) {
+                if (mainStack.isOf(Items.STICK)) {
+                    // Sneak + Stick = rotate FACING (pseudowrench)
+                    // flags == 0x4 means notify listeners in server only
+                    //          0x2 means do update listeners (in general)
+                    //          0x1 means do update comparators
+                    this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
+                } else if (mainStack.isEmpty()) {
+                    // Sneak + Empty primary = reverse FACING
+                    this.reorient(state, world, pos, facing.getOpposite());
+                } else {
+                    return ActionResult.PASS;
+                }
+            } else {
+                if (mainStack.isIn(Ductwork.WRENCHES)) {
+                    // Wrench in primary = rotate FACING
+                    this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
+                    // TODO: else if duct-on-duct enabled and main hand is Ductwork, return PASS
+                } else {
+                    // Otherwise = open container
+                    this.openContainer(world, pos, player);
+                }
+            }
         }
 
         return ActionResult.SUCCESS;
+    }
+
+    // Reorient the primary (FACING) orientation of the block with all necessary updates and notifications.
+    @Override
+    protected void reorient(BlockState state, World world, BlockPos pos, Direction direction) {
+        Direction previous = state.get(FACING);
+
+        if (!direction.equals(previous)) {
+            BlockState neighbor1 = world.getBlockState(pos.offset(previous));
+            BlockState neighbor2 = world.getBlockState(pos.offset(direction));
+
+            state = state.with(FACING, direction);
+
+            state = this.getStateWithNeighbor(state, previous, neighbor1);
+            state = this.getStateWithNeighbor(state, direction, neighbor2);
+
+            // flags == 0x4 means notify listeners in server only
+            //          0x2 means do update listeners (in general)
+            //          0x1 means do update comparators
+            world.setBlockState(pos, state, 6);
+        }
+
     }
 
     private void openContainer(World world, BlockPos blockPos, PlayerEntity playerEntity) {
@@ -118,7 +165,7 @@ public class DuctBlock extends BlockWithEntity {
 
     private BlockState getStateWithNeighbor(BlockState state, Direction direction, BlockState neighbor) {
         if (direction.equals(state.get(FACING))) {
-            return state;
+            return state.with(BooleanProperty.of(direction.toString()), false);
         }
 
         Block neighborBlock = neighbor.getBlock();
@@ -224,38 +271,8 @@ public class DuctBlock extends BlockWithEntity {
     }
 
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
-    }
-
-    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(FACING).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP);
-    }
-
-    @Override
-    public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
-        return false;
-    }
-
-    @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
-    }
-
-    @Override
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
-    }
-
-    @Override
-    public BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
     }
 
     @Override

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class RedstoneWireBlockMixin {
     @Inject(method = "canRunOnTop", at = @At("HEAD"), cancellable = true)
     private void allowWireOnDownwardCollectors(BlockView world, BlockPos pos, BlockState floor, CallbackInfoReturnable<Boolean> ci) {
-        if (floor.isOf(Ductwork.COLLECTOR_BLOCK) && floor.get(CollectorBlock.FACING) == Direction.DOWN) {
+        if (floor.isOf(Ductwork.COLLECTOR_BLOCK) && floor.get(CollectorBlock.INTAKE) == Direction.UP) {
             ci.setReturnValue(true);
         }
     }

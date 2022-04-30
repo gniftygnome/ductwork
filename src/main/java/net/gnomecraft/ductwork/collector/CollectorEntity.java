@@ -5,16 +5,15 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
-import net.gnomecraft.cooldowncoordinator.*;
+import net.gnomecraft.cooldowncoordinator.CooldownCoordinator;
 import net.gnomecraft.ductwork.Ductwork;
+import net.gnomecraft.ductwork.base.DuctworkBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
@@ -22,29 +21,24 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
-
 /*
  * NOTE:
  * NOTE: CollectorBlock.FACING is the same as all the other Ductwork blocks -- towards the OUTPUT.
- * NOTE: That means when collecting (extracting) everything is backward (FACING.getOpposite())...
+ * NOTE: Collecting (extracting) is CollectorBlock.INTAKE which defaults to FACING.getOpposite()...
  * NOTE:
  */
 @SuppressWarnings("UnstableApiUsage")
-public class CollectorEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Hopper, SidedInventory {
-    public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
+public class CollectorEntity extends DuctworkBlockEntity implements Hopper, SidedInventory {
+    public final static int currentBlockRev = 1;  // hack around Fabric's missing DFU API
+    private int blockRev;
+
     private final static int[] SLOTS = new int[] {0, 1, 2, 3, 4};
-    private DefaultedList<ItemStack> inventory;
-    private long lastTickTime;
-    private int transferCooldown;
 
     // Collector area definitions for Hopper.getInputAreaShape()
     private final static VoxelShape INPUT_AREA_SHAPE_NORTH = Block.createCuboidShape(  0.0D,   0.0D, -16.0D, 16.0D, 16.0D,  0.0D);
@@ -59,6 +53,7 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
 
         this.inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
         this.transferCooldown = 0;
+        this.blockRev = -1;
     }
 
     @Override
@@ -67,19 +62,14 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     }
 
     @Override
-    public Text getDisplayName() {
-        return new TranslatableText(getCachedState().getBlock().getTranslationKey());
-    }
-
-    @Override
-    public Text getContainerName() {
-        return new TranslatableText(getCachedState().getBlock().getTranslationKey());
-    }
-
-    @Override
     public void writeNbt(NbtCompound tag) {
         Inventories.writeNbt(tag, this.inventory);
         tag.putShort("TransferCooldown", (short)this.transferCooldown);
+
+        // Implement hack around Fabric's missing DFU API.
+        if (this.blockRev >= 0) {
+            tag.putShort("BlockRev", (short) this.blockRev);
+        }
 
         super.writeNbt(tag);
     }
@@ -87,6 +77,9 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     @Override
     public void readNbt(NbtCompound tag) {
         super.readNbt(tag);
+
+        // Implement hack around Fabric's missing DFU API.
+        this.blockRev = tag.getShort("BlockRev");
 
         this.transferCooldown = tag.getShort("TransferCooldown");
         inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
@@ -98,6 +91,25 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
 
         if (world == null || world.isClient()) {
             return;
+        }
+
+        // Implement hack around Fabric's missing DFU API.
+        if (CollectorEntity.currentBlockRev > entity.blockRev) {
+            switch (entity.blockRev) {
+                case -1:
+                    // Newly created block; assume clean entity.
+                    entity.blockRev = CollectorEntity.currentBlockRev;
+                    break;
+                case 0:
+                    // BlockRev 0 INTAKE was hard-coded to opposite of facing; reinitialize it.
+                    Direction intake = state.get(CollectorBlock.FACING).getOpposite();
+                    Ductwork.LOGGER.info("Collector at (" + pos.toShortString() + ") has BlockRev " + entity.blockRev + "; setting INTAKE to " + intake);
+                    world.setBlockState(pos, state.with(CollectorBlock.INTAKE, intake));
+                    entity.blockRev = 1;
+                default:
+                    assert(entity.blockRev == CollectorEntity.currentBlockRev);
+            }
+            dirty = true;
         }
 
         entity.lastTickTime = world.getTime();
@@ -157,7 +169,7 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     // No cooldown coordination is required when extracting; only the local (target) cooldown needs to be updated.
     private boolean pull(World world, BlockPos pos, BlockState state, CollectorEntity entity) {
         // Extraction (intake) on the opposite side, in the opposite direction...
-        Direction intake = state.get(CollectorBlock.FACING).getOpposite();
+        Direction intake = state.get(CollectorBlock.INTAKE);
         Storage<ItemVariant> targetStorage = ItemStorage.SIDED.find(world, pos, state, entity, intake);
 
         // Try to find storage first.  This will also find stationary inventories.
@@ -196,26 +208,6 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     }
 
     @Override
-    public void notifyCooldown() {
-        if (world == null) {
-            return;
-        }
-
-        if (this.lastTickTime >= world.getTime()) {
-            this.transferCooldown = CollectorEntity.defaultCooldown - 1;
-        } else {
-            this.transferCooldown = CollectorEntity.defaultCooldown;
-        }
-
-        this.markDirty();
-    }
-
-    @Override
-    public int size() {
-        return this.inventory.size();
-    }
-
-    @Override
     public int[] getAvailableSlots(Direction side) {
         return SLOTS;
     }
@@ -223,8 +215,9 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     @Override
     public boolean canInsert(int index, ItemStack stack, Direction direction) {
         Direction facing = this.getCachedState().get(CollectorBlock.FACING);
+        Direction intake = this.getCachedState().get(CollectorBlock.INTAKE);
         // The direction == null lunacy is required by the Hopper collector implementation...
-        if (facing != null && (direction == null || direction == facing || direction == facing.getOpposite())) {
+        if (facing != null && intake != null && (direction == null || direction == facing || direction == intake)) {
             return this.isValid(index, stack);
         }
 
@@ -237,79 +230,8 @@ public class CollectorEntity extends LockableContainerBlockEntity implements Coo
     }
 
     @Override
-    public boolean isEmpty() {
-        Iterator<ItemStack> invIterator = this.inventory.iterator();
-
-        ItemStack stack;
-        do {
-            if (!invIterator.hasNext()) {
-                return true;
-            }
-
-            stack = invIterator.next();
-        } while (stack.isEmpty());
-
-        return false;
-    }
-
-    public boolean isFull() {
-        Iterator<ItemStack> invIterator = this.inventory.iterator();
-
-        ItemStack stack;
-        do {
-            if (!invIterator.hasNext()) {
-                return true;
-            }
-
-            stack = invIterator.next();
-        } while (!stack.isEmpty() && stack.getCount() >= stack.getMaxCount());
-
-        return false;
-    }
-
-    @Override
-    public ItemStack getStack(int index) {
-        return this.inventory.get(index);
-    }
-
-    @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return Inventories.splitStack(this.inventory, slot, amount);
-    }
-
-    @Override
-    public ItemStack removeStack(int slot) {
-        return Inventories.removeStack(this.inventory, slot);
-    }
-
-    @Override
-    public void setStack(int index, ItemStack stack) {
-        this.inventory.set(index, stack);
-        if (stack.getCount() > this.getMaxCountPerStack()) {
-            stack.setCount(this.getMaxCountPerStack());
-        }
-
-        this.markDirty();
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        if (this.world == null || this.world.getBlockEntity(this.pos) != this) {
-            return false;
-        } else {
-            return player.squaredDistanceTo((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
-        }
-    }
-
-    @Override
-    public void clear() {
-        this.inventory.clear();
-    }
-
-    @Override
     public VoxelShape getInputAreaShape() {
-        // Extraction on the opposite side from facing.
-        return switch (this.getCachedState().get(CollectorBlock.FACING).getOpposite()) {
+        return switch (this.getCachedState().get(CollectorBlock.INTAKE)) {
             case NORTH -> INPUT_AREA_SHAPE_NORTH;
             case EAST  -> INPUT_AREA_SHAPE_EAST;
             case SOUTH -> INPUT_AREA_SHAPE_SOUTH;

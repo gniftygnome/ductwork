@@ -4,6 +4,7 @@
   "package": "net.gnomecraft.ductwork.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ItemUseMixin",
     "RedstoneWireBlockMixin"
   ],
   "client": [

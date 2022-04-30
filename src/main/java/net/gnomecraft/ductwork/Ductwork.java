@@ -52,6 +52,7 @@ public class Ductwork implements ModInitializer {
 
     public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier("ductwork", "ducts"));
     public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier("ductwork", "ducts"));
+    public static final TagKey<Item> WRENCHES = TagKey.of(Registry.ITEM_KEY, new Identifier("c", "wrenches"));
 
     @Override
     public void onInitialize() {

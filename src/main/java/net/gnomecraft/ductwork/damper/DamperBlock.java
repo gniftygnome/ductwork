@@ -1,18 +1,18 @@
 package net.gnomecraft.ductwork.damper;
 
 import net.gnomecraft.ductwork.Ductwork;
+import net.gnomecraft.ductwork.base.DuctworkBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -29,7 +29,7 @@ import net.minecraft.world.WorldAccess;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DamperBlock extends BlockWithEntity {
+public class DamperBlock extends DuctworkBlock {
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final BooleanProperty ENABLED = BooleanProperty.of("enabled");
     private static final VoxelShape DAMPER_SHAPE_NS_ENABLED = VoxelShapes.union(
@@ -85,15 +85,30 @@ public class DamperBlock extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
+            ItemStack mainStack = player.getMainHandStack();
+
             if (player.isSneaking()) {
-                // Sneak + Use = toggle ENABLED
-                // flags == 0x4 means notify listeners in server only
-                //          0x2 means do update listeners (in general)
-                //          0x1 means do update comparators
-                world.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 4);
+                if (mainStack.isOf(Items.STICK)) {
+                    // Sneak + Stick = rotate FACING (pseudowrench)
+                    // flags == 0x4 means notify listeners in server only
+                    //          0x2 means do update listeners (in general)
+                    //          0x1 means do update comparators
+                    this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
+                } else if (mainStack.isEmpty()) {
+                    // Sneak + Empty primary = toggle ENABLED
+                    world.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 4);
+                } else {
+                    return ActionResult.PASS;
+                }
             } else {
-                // just Use = open GUI
-                this.openContainer(world, pos, player);
+                if (mainStack.isIn(Ductwork.WRENCHES)) {
+                    // Wrench in primary = rotate FACING
+                    this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
+                    // TODO: else if duct-on-duct enabled and main hand is Ductwork, return PASS
+                } else {
+                    // Otherwise = open container
+                    this.openContainer(world, pos, player);
+                }
             }
         }
 
@@ -180,38 +195,8 @@ public class DamperBlock extends BlockWithEntity {
     }
 
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
-        return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
-    }
-
-    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(FACING).add(ENABLED);
-    }
-
-    @Override
-    public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
-        return false;
-    }
-
-    @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
-    }
-
-    @Override
-    public BlockState rotate(BlockState state, BlockRotation rotation) {
-        return state.with(FACING, rotation.rotate(state.get(FACING)));
-    }
-
-    @Override
-    public BlockState mirror(BlockState state, BlockMirror mirror) {
-        return state.rotate(mirror.getRotation(state.get(FACING)));
     }
 
     @Override

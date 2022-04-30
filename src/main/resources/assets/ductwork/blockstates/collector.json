@@ -1,10 +1,17 @@
 {
-  "variants": {
-    "facing=north": { "model": "ductwork:block/collector" },
-    "facing=east":  { "model": "ductwork:block/collector", "y":  90 },
-    "facing=south": { "model": "ductwork:block/collector", "y":  180 },
-    "facing=west":  { "model": "ductwork:block/collector", "y":  270 },
-    "facing=down":  { "model": "ductwork:block/collector", "x":  90 },
-    "facing=up":    { "model": "ductwork:block/collector", "x":  270 }
-  }
+  "multipart": [
+    { "when": { "intake": "south" }, "apply": { "model": "ductwork:block/collector_intake" } },
+    { "when": { "intake": "west" },  "apply": { "model": "ductwork:block/collector_intake", "y":  90 } },
+    { "when": { "intake": "north" }, "apply": { "model": "ductwork:block/collector_intake", "y": 180 } },
+    { "when": { "intake": "east" },  "apply": { "model": "ductwork:block/collector_intake", "y": 270 } },
+    { "when": { "intake": "up" },    "apply": { "model": "ductwork:block/collector_intake", "x":  90 } },
+    { "when": { "intake": "down" },  "apply": { "model": "ductwork:block/collector_intake", "x": 270 } },
+
+    { "when": { "facing": "north" }, "apply": { "model": "ductwork:block/collector_output" } },
+    { "when": { "facing": "east" },  "apply": { "model": "ductwork:block/collector_output", "y":  90 } },
+    { "when": { "facing": "south" }, "apply": { "model": "ductwork:block/collector_output", "y": 180 } },
+    { "when": { "facing": "west" },  "apply": { "model": "ductwork:block/collector_output", "y": 270 } },
+    { "when": { "facing": "down" },  "apply": { "model": "ductwork:block/collector_output", "x":  90 } },
+    { "when": { "facing": "up" },    "apply": { "model": "ductwork:block/collector_output", "x": 270 } }
+  ]
 }
