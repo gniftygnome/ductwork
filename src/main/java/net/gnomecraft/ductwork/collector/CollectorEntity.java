@@ -15,7 +15,6 @@ import net.minecraft.block.entity.Hopper;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
@@ -63,9 +62,6 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper, Side
 
     @Override
     public void writeNbt(NbtCompound tag) {
-        Inventories.writeNbt(tag, this.inventory);
-        tag.putShort("TransferCooldown", (short)this.transferCooldown);
-
         // Implement hack around Fabric's missing DFU API.
         if (this.blockRev >= 0) {
             tag.putShort("BlockRev", (short) this.blockRev);
@@ -80,10 +76,6 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper, Side
 
         // Implement hack around Fabric's missing DFU API.
         this.blockRev = tag.getShort("BlockRev");
-
-        this.transferCooldown = tag.getShort("TransferCooldown");
-        inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-        Inventories.readNbt(tag, this.inventory);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, CollectorEntity entity) {

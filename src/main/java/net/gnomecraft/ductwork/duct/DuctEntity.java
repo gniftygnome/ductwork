@@ -10,9 +10,7 @@ import net.gnomecraft.ductwork.base.DuctworkBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -31,23 +29,6 @@ public class DuctEntity extends DuctworkBlockEntity {
     @Override
     public ScreenHandler createScreenHandler(int syncId, PlayerInventory playerInventory) {
         return new DuctScreenHandler(syncId, playerInventory, this);
-    }
-
-    @Override
-    public void writeNbt(NbtCompound tag) {
-        Inventories.writeNbt(tag, this.inventory);
-        tag.putShort("TransferCooldown", (short)this.transferCooldown);
-
-        super.writeNbt(tag);
-    }
-
-    @Override
-    public void readNbt(NbtCompound tag) {
-        super.readNbt(tag);
-
-        this.transferCooldown = tag.getShort("TransferCooldown");
-        inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-        Inventories.readNbt(tag, this.inventory);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, DuctEntity entity) {

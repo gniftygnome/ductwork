@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.collection.DefaultedList;
@@ -33,6 +34,23 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     @Override
     public Text getContainerName() {
         return new TranslatableText(getCachedState().getBlock().getTranslationKey());
+    }
+
+    @Override
+    public void writeNbt(NbtCompound tag) {
+        Inventories.writeNbt(tag, this.inventory);
+        tag.putShort("TransferCooldown", (short)this.transferCooldown);
+
+        super.writeNbt(tag);
+    }
+
+    @Override
+    public void readNbt(NbtCompound tag) {
+        super.readNbt(tag);
+
+        this.transferCooldown = tag.getShort("TransferCooldown");
+        inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        Inventories.readNbt(tag, this.inventory);
     }
 
     @Override
