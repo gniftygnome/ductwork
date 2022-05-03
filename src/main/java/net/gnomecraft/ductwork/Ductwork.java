@@ -1,5 +1,7 @@
 package net.gnomecraft.ductwork;
 
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -7,6 +9,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.gnomecraft.ductwork.collector.CollectorBlock;
 import net.gnomecraft.ductwork.collector.CollectorEntity;
 import net.gnomecraft.ductwork.collector.CollectorScreenHandler;
+import net.gnomecraft.ductwork.config.DuctworkConfig;
 import net.gnomecraft.ductwork.damper.DamperBlock;
 import net.gnomecraft.ductwork.damper.DamperEntity;
 import net.gnomecraft.ductwork.damper.DamperScreenHandler;
@@ -50,12 +53,15 @@ public class Ductwork implements ModInitializer {
     public static final Identifier DamperBlockId = new Identifier(modId, "damper");
     public static final Identifier DuctBlockId = new Identifier(modId, "duct");
 
-    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier("ductwork", "ducts"));
-    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier("ductwork", "ducts"));
+    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier(modId, "ducts"));
+    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier(modId, "ducts"));
     public static final TagKey<Item> WRENCHES = TagKey.of(Registry.ITEM_KEY, new Identifier("c", "wrenches"));
 
     @Override
     public void onInitialize() {
+        // Register the Ductwork config
+        AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
+
         // Collector block
         COLLECTOR_BLOCK = Registry.register(Registry.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
         COLLECTOR_ITEM = Registry.register(Registry.ITEM, CollectorBlockId, new BlockItem(COLLECTOR_BLOCK, new Item.Settings().group(ItemGroup.REDSTONE)));
@@ -72,6 +78,10 @@ public class Ductwork implements ModInitializer {
         DUCT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
 
         LOGGER.info("Ductwork makes the Dreamwork!");
+    }
+
+    public static DuctworkConfig getConfig() {
+        return AutoConfig.getConfigHolder(DuctworkConfig.class).getConfig();
     }
 
     static {

@@ -26,6 +26,16 @@ repositories {
             password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
         }
     }
+
+    maven {
+        name = "ClothConfig"
+        url = "https://maven.shedaniel.me/"
+    }
+
+    maven {
+        name = "ModMenu"
+        url = "https://maven.terraformersmc.com/releases/"
+    }
 }
 
 dependencies {
@@ -39,6 +49,16 @@ dependencies {
 
     // Cooldown Coordinator to facilitate item movement cooldowns
     modImplementation "net.gnomecraft:cooldown-coordinator:${project.cooldowncoordinator_version}"
+
+    // Cloth Config to allow mod configuration
+    modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.clothconfig_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    // ModMenu to support GUI configuration
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 processResources {

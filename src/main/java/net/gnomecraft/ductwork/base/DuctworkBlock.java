@@ -1,5 +1,6 @@
 package net.gnomecraft.ductwork.base;
 
+import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.screen.ScreenHandler;
@@ -60,6 +61,17 @@ public abstract class DuctworkBlock extends BlockWithEntity {
         }
         // Add the coorient's opposite pole.
         orientations.add(coorient.getOpposite());
+
+        // Special considerations for Vanilla mode:
+        // FACING must not be UP
+        // INTAKE must be UP
+        if (Ductwork.getConfig().vanilla) {
+            if (orientable.getName().equalsIgnoreCase("facing")) {
+                orientations.remove(Direction.UP);
+            } else if (orientable.getName().equalsIgnoreCase("intake")) {
+                return Direction.UP;
+            }
+        }
 
         // Return the next valid orientation.
         return orientations.get((orientations.indexOf(orient) + 1) % orientations.size());

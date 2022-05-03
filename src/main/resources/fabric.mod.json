@@ -20,6 +20,9 @@
     ],
     "main": [
       "net.gnomecraft.ductwork.Ductwork"
+    ],
+    "modmenu": [
+      "net.gnomecraft.ductwork.config.DuctworkModMenuApiImpl"
     ]
   },
   "mixins": [
@@ -29,6 +32,7 @@
     "fabricloader": ">=0.12.12",
     "fabric": "*",
     "minecraft": "1.18.2",
-    "cooldown-coordinator": ">=0.3.0"
+    "cooldown-coordinator": ">=0.3.0",
+    "cloth-config": "*"
   }
 }

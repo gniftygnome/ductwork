@@ -94,7 +94,7 @@ public class DamperBlock extends DuctworkBlock {
                     //          0x2 means do update listeners (in general)
                     //          0x1 means do update comparators
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
-                } else if (mainStack.isEmpty()) {
+                } else if (mainStack.isEmpty() && !Ductwork.getConfig().vanilla) {
                     // Sneak + Empty primary = toggle ENABLED
                     world.setBlockState(pos, state.with(ENABLED, !state.get(ENABLED)), 4);
                 } else {
@@ -104,7 +104,9 @@ public class DamperBlock extends DuctworkBlock {
                 if (mainStack.isIn(Ductwork.WRENCHES)) {
                     // Wrench in primary = rotate FACING
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
-                    // TODO: else if duct-on-duct enabled and main hand is Ductwork, return PASS
+                } else if (Ductwork.getConfig().placement && mainStack.isIn(Ductwork.DUCT_ITEMS)) {
+                    // Allow Duct-on-Duct placement if enabled.
+                    return ActionResult.PASS;
                 } else {
                     // Otherwise = open container
                     this.openContainer(world, pos, player);
@@ -132,7 +134,13 @@ public class DamperBlock extends DuctworkBlock {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getSide().getOpposite());
+        Direction facing = ctx.getSide().getOpposite();
+
+        if (Ductwork.getConfig().vanilla && facing == Direction.UP) {
+            facing = Direction.DOWN;
+        }
+
+        return this.getDefaultState().with(FACING, facing);
     }
 
     @Override

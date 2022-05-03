@@ -86,7 +86,9 @@ public class DuctBlock extends DuctworkBlock {
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
                 } else if (mainStack.isEmpty()) {
                     // Sneak + Empty primary = reverse FACING
-                    this.reorient(state, world, pos, facing.getOpposite());
+                    if (!Ductwork.getConfig().vanilla || !facing.equals(Direction.DOWN)) {
+                        this.reorient(state, world, pos, facing.getOpposite());
+                    }
                 } else {
                     return ActionResult.PASS;
                 }
@@ -94,7 +96,9 @@ public class DuctBlock extends DuctworkBlock {
                 if (mainStack.isIn(Ductwork.WRENCHES)) {
                     // Wrench in primary = rotate FACING
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, null));
-                    // TODO: else if duct-on-duct enabled and main hand is Ductwork, return PASS
+                } else if (Ductwork.getConfig().placement && mainStack.isIn(Ductwork.DUCT_ITEMS)) {
+                    // Allow Duct-on-Duct placement if enabled.
+                    return ActionResult.PASS;
                 } else {
                     // Otherwise = open container
                     this.openContainer(world, pos, player);
@@ -144,7 +148,13 @@ public class DuctBlock extends DuctworkBlock {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        BlockState state = this.getDefaultState().with(FACING, ctx.getSide().getOpposite());
+        Direction facing = ctx.getSide().getOpposite();
+
+        if (Ductwork.getConfig().vanilla && facing == Direction.UP) {
+            facing = Direction.DOWN;
+        }
+
+        BlockState state = this.getDefaultState().with(FACING, facing);
 
         for (Direction direction : DIRECTIONS) {
             if (direction.equals(state.get(FACING))) { continue; }

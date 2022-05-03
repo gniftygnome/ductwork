@@ -82,7 +82,9 @@ public class CollectorBlock extends DuctworkBlock {
                 if (mainStack.isIn(Ductwork.WRENCHES)) {
                     // Wrench in primary = rotate FACING
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, INTAKE));
-                // TODO: else if duct-on-duct enabled and main hand is Ductwork, return PASS
+                } else if (Ductwork.getConfig().placement && mainStack.isIn(Ductwork.DUCT_ITEMS)) {
+                    // Allow Duct-on-Duct placement if enabled.
+                    return ActionResult.PASS;
                 } else {
                     // Otherwise = open container
                     this.openContainer(world, pos, player);
@@ -110,8 +112,17 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        Direction placementSide = ctx.getSide();
-        return this.getDefaultState().with(FACING, placementSide.getOpposite()).with(INTAKE, placementSide);
+        Direction intake = ctx.getSide();
+        Direction facing = intake.getOpposite();
+
+        if (Ductwork.getConfig().vanilla) {
+            intake = Direction.UP;
+            if (facing == Direction.UP) {
+                facing = Direction.DOWN;
+            }
+        }
+
+        return this.getDefaultState().with(FACING, facing).with(INTAKE, intake);
     }
 
     @Override
