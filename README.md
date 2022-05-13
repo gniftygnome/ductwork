@@ -57,7 +57,7 @@ is receiving or collecting items).
 Ductwork blocks can be reoriented without breaking and re-placing them.
 See the wiki for more details.
 
-## Vanilla Parity Mode
+## Limited Ductworks mode
 
 If you want Ductwork blocks to be limited to doing things you can generally
 do with Item Hoppers, there is a configuration option for this.  See the
