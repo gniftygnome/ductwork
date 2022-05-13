@@ -3,7 +3,8 @@
 # Ductwork
 Simple duct-metaphor item distribution network mod
 
-Ductwork requires [Cooldown Coordinator](https://github.com/gniftygnome/cooldown-coordinator)!
+Ductwork requires [Cooldown Coordinator](https://github.com/gniftygnome/cooldown-coordinator) and
+[Cloth Config](https://github.com/shedaniel/cloth-config)!
 
 ## Features of Ductwork
 
@@ -52,6 +53,19 @@ This can take some practice, particularly with Collector blocks!  Often,
 the easiest way to place Ductwork blocks is to start at the end of the duct
 (where it is delivering items) and work backward to the beginning (where it
 is receiving or collecting items).
+
+Ductwork blocks can be reoriented without breaking and re-placing them.
+See the wiki for more details.
+
+## Vanilla Parity Mode
+
+If you want Ductwork blocks to be limited to doing things you can generally
+do with Item Hoppers, there is a configuration option for this.  See the
+configuration file (if on a server) or the Mod Menu page (if using the
+client's integrated server).  This makes Ductwork a great option for server
+admins who want a pure Minecraft technical experience but also want the
+performance improvements of Ductwork's Ducts.
+
 
 ## For more Information and Examples
 
