@@ -18,7 +18,7 @@
     { "when": { "east":  "true" }, "apply": { "model": "ductwork:block/duct_input", "y":  90 } },
     { "when": { "south": "true" }, "apply": { "model": "ductwork:block/duct_input", "y": 180 } },
     { "when": { "west":  "true" }, "apply": { "model": "ductwork:block/duct_input", "y": 270 } },
-    { "when": { "up":    "true" }, "apply": { "model": "ductwork:block/duct_input", "x":  90 } },
-    { "when": { "down":  "true" }, "apply": { "model": "ductwork:block/duct_input", "x": 270 } }
+    { "when": { "down":  "true" }, "apply": { "model": "ductwork:block/duct_input", "x":  90 } },
+    { "when": { "up":    "true" }, "apply": { "model": "ductwork:block/duct_input", "x": 270 } }
   ]
 }

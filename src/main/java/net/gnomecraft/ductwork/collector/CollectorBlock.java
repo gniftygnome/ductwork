@@ -321,7 +321,7 @@ public class CollectorBlock extends DuctworkBlock {
         for (Direction intake: DIRECTIONS) {
             int intakeId = intake.getId();
             for (int adjacents = 0; adjacents < 64; ++adjacents) {
-                COLLECTOR_SHAPE_DICT[intakeId << 6 | adjacents] = VoxelShapes.union(
+                COLLECTOR_SHAPE_DICT[(intakeId << 6) | adjacents] = VoxelShapes.union(
                         INTAKE_SHAPES[intakeId],
                         ((adjacents & 1)  != 0) ? ADJACENT_SHAPES[Direction.NORTH.getId()] : VoxelShapes.empty(),
                         ((adjacents & 2)  != 0) ? ADJACENT_SHAPES[Direction.EAST.getId()]  : VoxelShapes.empty(),
