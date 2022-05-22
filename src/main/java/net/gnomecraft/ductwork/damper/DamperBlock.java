@@ -14,8 +14,6 @@ import net.minecraft.item.Items;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -30,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DamperBlock extends DuctworkBlock {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
-    public static final BooleanProperty ENABLED = BooleanProperty.of("enabled");
     private static final VoxelShape DAMPER_SHAPE_NS_ENABLED = VoxelShapes.union(
             Block.createCuboidShape(5.0D,  5.0D, 0.0D, 11.0D, 11.0D, 16.0D),
             Block.createCuboidShape(3.0D,  7.0D, 4.0D, 5.0D,  9.0D,  12.0D),

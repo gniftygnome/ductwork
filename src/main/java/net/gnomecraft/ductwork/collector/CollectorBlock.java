@@ -14,8 +14,6 @@ import net.minecraft.item.Items;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -30,10 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectorBlock extends DuctworkBlock {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
-    public static final DirectionProperty INTAKE = DirectionProperty.of("intake");
-    public static final BooleanProperty ENABLED = BooleanProperty.of("enabled");
-    public static final VoxelShape[] COLLECTOR_SHAPE_DICT = new VoxelShape[48];
+    public static final VoxelShape[] COLLECTOR_SHAPE_DICT = new VoxelShape[512];
 
     public CollectorBlock(Settings settings) {
         super(settings);
@@ -41,6 +36,12 @@ public class CollectorBlock extends DuctworkBlock {
         setDefaultState(getStateManager().getDefaultState()
                 .with(FACING, Direction.DOWN)
                 .with(INTAKE, Direction.UP)
+                .with(NORTH, false)
+                .with(EAST,  false)
+                .with(SOUTH, false)
+                .with(WEST,  false)
+                .with(DOWN,  false)
+                .with(UP,    false)
                 .with(ENABLED,true)
         );
 
@@ -74,7 +75,7 @@ public class CollectorBlock extends DuctworkBlock {
                     this.reorient(state, world, pos, this.getNextOrientation(state, FACING, INTAKE));
                 } else if (mainStack.isEmpty()) {
                     // Sneak + Empty primary = rotate INTAKE
-                    world.setBlockState(pos, state.with(INTAKE, this.getNextOrientation(state, INTAKE, FACING)), 7);
+                    this.reorientIntake(state, world, pos, this.getNextOrientation(state, INTAKE, FACING));
                 } else {
                     return ActionResult.PASS;
                 }
@@ -93,6 +94,49 @@ public class CollectorBlock extends DuctworkBlock {
         }
 
         return ActionResult.SUCCESS;
+    }
+
+    // Reorient the primary (FACING) orientation of the block with all necessary updates and notifications.
+    @Override
+    protected void reorient(BlockState state, World world, BlockPos pos, Direction direction) {
+        Direction previous = state.get(FACING);
+
+        if (!direction.equals(previous)) {
+            BlockState neighbor1 = world.getBlockState(pos.offset(previous));
+            BlockState neighbor2 = world.getBlockState(pos.offset(direction));
+
+            state = state.with(FACING, direction);
+
+            state = this.getStateWithNeighbor(state, previous, neighbor1);
+            state = this.getStateWithNeighbor(state, direction, neighbor2);
+
+            // flags == 0x4 means notify listeners in server only
+            //          0x2 means do update listeners (in general)
+            //          0x1 means do update comparators
+            world.setBlockState(pos, state, 6);
+        }
+
+    }
+
+    // Reorient the primary (FACING) orientation of the block with all necessary updates and notifications.
+    protected void reorientIntake(BlockState state, World world, BlockPos pos, Direction direction) {
+        Direction previous = state.get(INTAKE);
+
+        if (!direction.equals(previous)) {
+            BlockState neighbor1 = world.getBlockState(pos.offset(previous));
+            BlockState neighbor2 = world.getBlockState(pos.offset(direction));
+
+            state = state.with(INTAKE, direction);
+
+            state = this.getStateWithNeighbor(state, previous, neighbor1);
+            state = this.getStateWithNeighbor(state, direction, neighbor2);
+
+            // flags == 0x4 means notify listeners in server only
+            //          0x2 means do update listeners (in general)
+            //          0x1 means do update comparators
+            world.setBlockState(pos, state, 7);
+        }
+
     }
 
     private void openContainer(World world, BlockPos blockPos, PlayerEntity playerEntity) {
@@ -122,7 +166,17 @@ public class CollectorBlock extends DuctworkBlock {
             }
         }
 
-        return this.getDefaultState().with(FACING, facing).with(INTAKE, intake);
+        BlockState state = this.getDefaultState().with(FACING, facing).with(INTAKE, intake);
+
+        state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
+
+        return state;
+    }
+
+    @Override
+    protected BlockState resetInputConnections(BlockState state, World world, BlockPos pos) {
+        // To allow CollectorEntity to call this method during fixup.
+        return super.resetInputConnections(state, world, pos);
     }
 
     @Override
@@ -145,7 +199,7 @@ public class CollectorBlock extends DuctworkBlock {
             state = state.with(ENABLED, !((World) world).isReceivingRedstonePower(pos));
         }
 
-        return super.getStateForNeighborUpdate(state, direction, neighbor, world, pos, neighborPos);
+        return getStateWithNeighbor(state, direction, neighbor);
     }
 
     private void updateEnabled(World world, BlockPos pos, BlockState state) {
@@ -185,7 +239,7 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING).add(INTAKE).add(ENABLED);
+        builder.add(FACING).add(INTAKE).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP).add(ENABLED);
     }
 
     @Override
@@ -195,58 +249,87 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        // pack two IDs in [0,5] to unique values in [0,47]
-        return COLLECTOR_SHAPE_DICT[state.get(FACING).getId() << 3 | state.get(INTAKE).getId()];
+        // INTAKE as int ID in bits 6, 7, 8
+        int shapeId = state.get(INTAKE).getId() << 6;
+
+        // FACING bool packed in bits 0 - 5
+        switch (state.get(FACING)) {
+            case NORTH -> shapeId |= 1;
+            case EAST  -> shapeId |= 2;
+            case SOUTH -> shapeId |= 4;
+            case WEST  -> shapeId |= 8;
+            case DOWN  -> shapeId |= 16;
+            case UP    -> shapeId |= 32;
+        }
+
+        // Adjacent connections also packed in bits 0 - 5
+        // These are shaped the same as the output piece...
+        if (state.get(NORTH)) { shapeId |= 1; }
+        if (state.get(EAST))  { shapeId |= 2; }
+        if (state.get(SOUTH)) { shapeId |= 4; }
+        if (state.get(WEST))  { shapeId |= 8; }
+        if (state.get(DOWN))  { shapeId |= 16; }
+        if (state.get(UP))    { shapeId |= 32; }
+
+        return COLLECTOR_SHAPE_DICT[shapeId];
     }
 
     private static void buildShapeDict() {
         VoxelShape[] INTAKE_SHAPES = new VoxelShape[6];
-        VoxelShape[] OUTPUT_SHAPES = new VoxelShape[6];
+        VoxelShape[] ADJACENT_SHAPES = new VoxelShape[6];
 
-        INTAKE_SHAPES[Direction.NORTH.getId()] = VoxelShapes.union(
+        VoxelShape CENTER_SHAPE = Block.createCuboidShape(5.0D,  5.0D,  5.0D,  11.0D, 11.0D, 11.0D);
+
+        INTAKE_SHAPES[Direction.NORTH.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D,  4.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D, 12.0D, 12.0D,  5.0D)
         );
-        INTAKE_SHAPES[Direction.EAST.getId()] = VoxelShapes.union(
+        INTAKE_SHAPES[Direction.EAST.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(12.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(11.0D, 4.0D, 4.0D, 12.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.SOUTH.getId()] = VoxelShapes.union(
+        INTAKE_SHAPES[Direction.SOUTH.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 12.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 11.0D, 12.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.WEST.getId()] = VoxelShapes.union(
+        INTAKE_SHAPES[Direction.WEST.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D,  4.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D,  5.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.DOWN.getId()] = VoxelShapes.union(
+        INTAKE_SHAPES[Direction.DOWN.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D,  4.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D, 12.0D,  5.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.UP.getId()] = VoxelShapes.union(
+        INTAKE_SHAPES[Direction.UP.getId()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 12.0D, 0.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 11.0D, 4.0D, 12.0D, 12.0D, 12.0D)
         );
 
-        OUTPUT_SHAPES[Direction.NORTH.getId()] =
-                Block.createCuboidShape(5.0D, 5.0D, 0.0D, 11.0D, 11.0D, 11.0D);
-        OUTPUT_SHAPES[Direction.EAST.getId()] =
-                Block.createCuboidShape(5.0D, 5.0D, 5.0D, 16.0D, 11.0D, 11.0D);
-        OUTPUT_SHAPES[Direction.SOUTH.getId()] =
-                Block.createCuboidShape(5.0D, 5.0D, 5.0D, 11.0D, 11.0D, 16.0D);
-        OUTPUT_SHAPES[Direction.WEST.getId()] =
-                Block.createCuboidShape(0.0D, 5.0D, 5.0D, 11.0D, 11.0D, 11.0D);
-        OUTPUT_SHAPES[Direction.DOWN.getId()] =
-                Block.createCuboidShape(5.0D, 0.0D, 5.0D, 11.0D, 11.0D, 11.0D);
-        OUTPUT_SHAPES[Direction.UP.getId()] =
-                Block.createCuboidShape(5.0D, 5.0D, 5.0D, 11.0D, 16.0D, 11.0D);
+        ADJACENT_SHAPES[Direction.NORTH.getId()] =
+                Block.createCuboidShape(5.0D,  5.0D,  0.0D,  11.0D, 11.0D, 5.0D);
+        ADJACENT_SHAPES[Direction.EAST.getId()] =
+                Block.createCuboidShape(11.0D, 5.0D,  5.0D,  16.0D, 11.0D, 11.0D);
+        ADJACENT_SHAPES[Direction.SOUTH.getId()] =
+                Block.createCuboidShape(5.0D,  5.0D,  11.0D, 11.0D, 11.0D, 16.0D);
+        ADJACENT_SHAPES[Direction.WEST.getId()] =
+                Block.createCuboidShape(0.0D,  5.0D,  5.0D,  5.0D,  11.0D, 11.0D);
+        ADJACENT_SHAPES[Direction.DOWN.getId()] =
+                Block.createCuboidShape(5.0D,  0.0D,  5.0D,  11.0D, 5.0D,  11.0D);
+        ADJACENT_SHAPES[Direction.UP.getId()] =
+                Block.createCuboidShape(5.0D,  11.0D, 5.0D,  11.0D, 16.0D, 11.0D);
 
-        for (Direction facing: DIRECTIONS) {
-            int facingId = facing.getId();
-            for (Direction intake: DIRECTIONS) {
-                int intakeId = intake.getId();
-                COLLECTOR_SHAPE_DICT[facingId << 3 | intakeId] =
-                        VoxelShapes.union(INTAKE_SHAPES[intakeId], OUTPUT_SHAPES[facingId]);
+        for (Direction intake: DIRECTIONS) {
+            int intakeId = intake.getId();
+            for (int adjacents = 0; adjacents < 64; ++adjacents) {
+                COLLECTOR_SHAPE_DICT[intakeId << 6 | adjacents] = VoxelShapes.union(
+                        INTAKE_SHAPES[intakeId],
+                        ((adjacents & 1)  != 0) ? ADJACENT_SHAPES[Direction.NORTH.getId()] : VoxelShapes.empty(),
+                        ((adjacents & 2)  != 0) ? ADJACENT_SHAPES[Direction.EAST.getId()]  : VoxelShapes.empty(),
+                        ((adjacents & 4)  != 0) ? ADJACENT_SHAPES[Direction.SOUTH.getId()] : VoxelShapes.empty(),
+                        ((adjacents & 8)  != 0) ? ADJACENT_SHAPES[Direction.WEST.getId()]  : VoxelShapes.empty(),
+                        ((adjacents & 16) != 0) ? ADJACENT_SHAPES[Direction.DOWN.getId()]  : VoxelShapes.empty(),
+                        ((adjacents & 32) != 0) ? ADJACENT_SHAPES[Direction.UP.getId()]    : VoxelShapes.empty()
+                );
             }
         }
     }

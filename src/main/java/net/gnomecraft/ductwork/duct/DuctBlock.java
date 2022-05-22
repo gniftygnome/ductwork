@@ -14,15 +14,10 @@ import net.minecraft.item.Items;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -33,13 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DuctBlock extends DuctworkBlock {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
-    public static final BooleanProperty NORTH = BooleanProperty.of("north");
-    public static final BooleanProperty EAST  = BooleanProperty.of("east");
-    public static final BooleanProperty SOUTH = BooleanProperty.of("south");
-    public static final BooleanProperty WEST  = BooleanProperty.of("west");
-    public static final BooleanProperty DOWN  = BooleanProperty.of("down");
-    public static final BooleanProperty UP    = BooleanProperty.of("up");
     public static final VoxelShape[] DUCT_SHAPE_DICT = new VoxelShape[64];
 
     public DuctBlock(Settings settings) {
@@ -156,12 +144,7 @@ public class DuctBlock extends DuctworkBlock {
 
         BlockState state = this.getDefaultState().with(FACING, facing);
 
-        for (Direction direction : DIRECTIONS) {
-            if (direction.equals(state.get(FACING))) { continue; }
-            BlockState neighbor = ctx.getWorld().getBlockState(ctx.getBlockPos().offset(direction));
-
-            state = getStateWithNeighbor(state, direction, neighbor);
-        }
+        state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
 
         return state;
     }
@@ -171,88 +154,6 @@ public class DuctBlock extends DuctworkBlock {
         if (direction.equals(state.get(FACING))) { return state; }
 
         return getStateWithNeighbor(state, direction, neighbor);
-    }
-
-    private BlockState getStateWithNeighbor(BlockState state, Direction direction, BlockState neighbor) {
-        if (direction.equals(state.get(FACING))) {
-            return state.with(BooleanProperty.of(direction.toString()), false);
-        }
-
-        Block neighborBlock = neighbor.getBlock();
-
-        // Connect to Ductwork blocks.
-        if (neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Vanilla Hoppers (and some Hopper mods).
-        if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Vanilla Droppers.
-        if (neighborBlock instanceof DropperBlock && neighbor.get(DropperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        /*
-         * The remaining connections are to blocks provided by mods to which we support connecting.
-         * We use a rather circuitous method of testing these blocks because our mod must compile
-         * and run without these other mods being present.
-         */
-
-        // Connect to Basalt Crusher Gravel Mills.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
-                neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Ducts mod Ducts.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
-                neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to OmniHopper mod OmniHoppers.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
-            EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
-
-            if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
-                return state.with(BooleanProperty.of(direction.toString()), true);
-            }
-        }
-
-        // Connect to Flytre's Pipe mod Pipes
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Simple Pipes mod Pipes.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
-            Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Smart Pipes mod SmartPipes.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        return state.with(BooleanProperty.of(direction.toString()), false);
     }
 
     @Override
@@ -318,14 +219,14 @@ public class DuctBlock extends DuctworkBlock {
         VoxelShape DOWN_SHAPE   = Block.createCuboidShape(5.0D,  0.0D,  5.0D,  11.0D, 5.0D,  11.0D);
         VoxelShape UP_SHAPE     = Block.createCuboidShape(5.0D,  11.0D, 5.0D,  11.0D, 16.0D, 11.0D);
 
-        for (int i = 0; i < 64; ++i) {
-            DUCT_SHAPE_DICT[i] = VoxelShapes.union(CENTER_SHAPE,
-                    ((i & 1)  != 0) ? NORTH_SHAPE : VoxelShapes.empty(),
-                    ((i & 2)  != 0) ? EAST_SHAPE  : VoxelShapes.empty(),
-                    ((i & 4)  != 0) ? SOUTH_SHAPE : VoxelShapes.empty(),
-                    ((i & 8)  != 0) ? WEST_SHAPE  : VoxelShapes.empty(),
-                    ((i & 16) != 0) ? DOWN_SHAPE  : VoxelShapes.empty(),
-                    ((i & 32) != 0) ? UP_SHAPE    : VoxelShapes.empty()
+        for (int adjacents = 0; adjacents < 64; ++adjacents) {
+            DUCT_SHAPE_DICT[adjacents] = VoxelShapes.union(CENTER_SHAPE,
+                    ((adjacents & 1)  != 0) ? NORTH_SHAPE : VoxelShapes.empty(),
+                    ((adjacents & 2)  != 0) ? EAST_SHAPE  : VoxelShapes.empty(),
+                    ((adjacents & 4)  != 0) ? SOUTH_SHAPE : VoxelShapes.empty(),
+                    ((adjacents & 8)  != 0) ? WEST_SHAPE  : VoxelShapes.empty(),
+                    ((adjacents & 16) != 0) ? DOWN_SHAPE  : VoxelShapes.empty(),
+                    ((adjacents & 32) != 0) ? UP_SHAPE    : VoxelShapes.empty()
             );
         }
     }

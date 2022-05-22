@@ -16,7 +16,6 @@ import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
@@ -33,11 +32,9 @@ import net.minecraft.world.World;
  * NOTE:
  */
 @SuppressWarnings("UnstableApiUsage")
-public class CollectorEntity extends DuctworkBlockEntity implements Hopper, SidedInventory {
-    public final static int currentBlockRev = 1;  // hack around Fabric's missing DFU API
+public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
+    public final static int currentBlockRev = 2;  // hack around Fabric's missing DFU API
     private int blockRev;
-
-    private final static int[] SLOTS = new int[] {0, 1, 2, 3, 4};
 
     // Collector area definitions for Hopper.getInputAreaShape()
     private final static VoxelShape INPUT_AREA_SHAPE_NORTH = Block.createCuboidShape(  0.0D,   0.0D, -16.0D, 16.0D, 16.0D,  0.0D);
@@ -85,7 +82,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper, Side
             return;
         }
 
-        // Implement hack around Fabric's missing DFU API.
+        // "Later Fixer Upper" -- Implement hack around Fabric's missing DFU API.
         if (CollectorEntity.currentBlockRev > entity.blockRev) {
             switch (entity.blockRev) {
                 case -1:
@@ -98,8 +95,16 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper, Side
                     Ductwork.LOGGER.info("Collector at (" + pos.toShortString() + ") has BlockRev " + entity.blockRev + "; setting INTAKE to " + intake);
                     world.setBlockState(pos, state.with(CollectorBlock.INTAKE, intake));
                     entity.blockRev = 1;
+                case 1:
+                    // BlockRev 1 did not connect to inputs, so re-check connections.
+                    world.setBlockState(pos, ((CollectorBlock) state.getBlock()).resetInputConnections(state, world, pos));
+                    entity.blockRev = 2;
                 default:
-                    assert(entity.blockRev == CollectorEntity.currentBlockRev);
+                    if (entity.blockRev != CollectorEntity.currentBlockRev) {
+                        Ductwork.LOGGER.warn("Collector at " + pos + " has rev " + entity.blockRev
+                                + " but our latest known rev is " + CollectorEntity.currentBlockRev
+                                + " ... expect trouble!");
+                    }
             }
             dirty = true;
         }
@@ -197,28 +202,6 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper, Side
 
         // At this point no items could be found by any means and pull() has moved nothing.
         return false;
-    }
-
-    @Override
-    public int[] getAvailableSlots(Direction side) {
-        return SLOTS;
-    }
-
-    @Override
-    public boolean canInsert(int index, ItemStack stack, Direction direction) {
-        Direction facing = this.getCachedState().get(CollectorBlock.FACING);
-        Direction intake = this.getCachedState().get(CollectorBlock.INTAKE);
-        // The direction == null lunacy is required by the Hopper collector implementation...
-        if (facing != null && intake != null && (direction == null || direction == facing || direction == intake)) {
-            return this.isValid(index, stack);
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return true;
     }
 
     @Override
