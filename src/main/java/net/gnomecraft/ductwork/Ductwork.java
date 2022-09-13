@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Ductwork implements ModInitializer {
-    public static final String modId = "ductwork";
-    public static final Logger LOGGER = LoggerFactory.getLogger(modId);
+    public static final String MOD_ID = "ductwork";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static Block COLLECTOR_BLOCK;
     public static BlockItem COLLECTOR_ITEM;
@@ -49,12 +49,12 @@ public class Ductwork implements ModInitializer {
     public static final ScreenHandlerType<DamperScreenHandler> DAMPER_SCREEN_HANDLER;
     public static final ScreenHandlerType<DuctScreenHandler> DUCT_SCREEN_HANDLER;
 
-    public static final Identifier CollectorBlockId = new Identifier(modId, "collector");
-    public static final Identifier DamperBlockId = new Identifier(modId, "damper");
-    public static final Identifier DuctBlockId = new Identifier(modId, "duct");
+    public static final Identifier CollectorBlockId = new Identifier(MOD_ID, "collector");
+    public static final Identifier DamperBlockId = new Identifier(MOD_ID, "damper");
+    public static final Identifier DuctBlockId = new Identifier(MOD_ID, "duct");
 
-    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier(modId, "ducts"));
-    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier(modId, "ducts"));
+    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier(MOD_ID, "ducts"));
+    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier(MOD_ID, "ducts"));
     public static final TagKey<Item> WRENCHES = TagKey.of(Registry.ITEM_KEY, new Identifier("c", "wrenches"));
 
     @Override

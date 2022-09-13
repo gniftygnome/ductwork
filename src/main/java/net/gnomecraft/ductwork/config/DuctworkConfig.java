@@ -8,7 +8,7 @@ import net.gnomecraft.ductwork.Ductwork;
 
 // Configuration file definition.
 @SuppressWarnings("unused")
-@Config(name = Ductwork.modId)
+@Config(name = Ductwork.MOD_ID)
 public class DuctworkConfig implements ConfigData {
     @Comment("Limit Ductworkings to Vanilla parity feature set?")
     @ConfigEntry.Gui.PrefixText
