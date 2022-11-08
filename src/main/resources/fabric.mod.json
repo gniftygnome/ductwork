@@ -21,6 +21,9 @@
     "main": [
       "net.gnomecraft.ductwork.Ductwork"
     ],
+    "fabric-datagen": [
+      "net.gnomecraft.ductwork.data.DuctworkDatagen"
+    ],
     "modmenu": [
       "net.gnomecraft.ductwork.config.DuctworkModMenuApiImpl"
     ]

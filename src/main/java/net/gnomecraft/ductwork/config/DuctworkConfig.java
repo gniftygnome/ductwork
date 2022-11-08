@@ -19,4 +19,9 @@ public class DuctworkConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Gui.Tooltip
     public boolean placement = false;
+
+    @Comment("Use low-iron recipes for Ductwork blocks?")
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip
+    public boolean cheaper = false;
 }

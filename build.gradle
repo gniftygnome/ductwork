@@ -1,6 +1,7 @@
 plugins {
-    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'io.github.juuxel.loom-quiltflower' version '1.7.4'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -72,6 +73,34 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     // Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
     it.options.release = 17
+}
+
+loom {
+    runs {
+        datagen {
+            server()
+
+            name = "Data Generation"
+            runDir = "build/datagen"
+
+            vmArg("-Dfabric-api.datagen")
+            vmArg("-Dfabric-api.datagen.output-dir=${file("src/main/generated")}")
+        }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    "src/main/generated"
+            ]
+        }
+    }
+}
+
+quiltflower {
+    addToRuntimeClasspath.set(true)
 }
 
 java {

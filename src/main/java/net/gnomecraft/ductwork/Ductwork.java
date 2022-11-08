@@ -16,6 +16,7 @@ import net.gnomecraft.ductwork.damper.DamperScreenHandler;
 import net.gnomecraft.ductwork.duct.DuctBlock;
 import net.gnomecraft.ductwork.duct.DuctEntity;
 import net.gnomecraft.ductwork.duct.DuctScreenHandler;
+import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
@@ -76,6 +77,9 @@ public class Ductwork implements ModInitializer {
         DUCT_BLOCK = Registry.register(Registry.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
         DUCT_ITEM = Registry.register(Registry.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings().group(ItemGroup.REDSTONE)));
         DUCT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+
+        // Initialize modules
+        DuctworkResourceConditions.init();
 
         LOGGER.info("Ductwork makes the Dreamwork!");
     }
