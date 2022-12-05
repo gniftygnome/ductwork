@@ -1,6 +1,6 @@
 package net.gnomecraft.ductwork.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
@@ -9,24 +9,27 @@ import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.data.server.recipe.RecipeJsonProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Items;
-import net.minecraft.tag.ItemTags;
+import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class DuctworkRecipeProvider extends FabricRecipeProvider {
-    public DuctworkRecipeProvider(FabricDataGenerator generator) {
-        super(generator);
+    public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+        super(output);
     }
 
     @Override
-    public void generateRecipes(Consumer<RecipeJsonProvider> exporter) {
+    public void generate(Consumer<RecipeJsonProvider> exporter) {
         Consumer<RecipeJsonProvider> cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
         Consumer<RecipeJsonProvider> fullPriceExporter = withConditions(exporter, DefaultResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
 
         // Cheaper recipes.
 
-        new ShapedRecipeJsonBuilder(Ductwork.COLLECTOR_ITEM, 4)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 4)
                 .pattern("Iwi")
                 .pattern("Irw")
                 .pattern("Iwi")
@@ -37,7 +40,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
                 .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
                 .offerTo(cheaperExporter, Identifier.of(Ductwork.MOD_ID, "collector-cheaper"));
 
-        new ShapedRecipeJsonBuilder(Ductwork.DAMPER_ITEM, 4)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
                 .pattern("iwi")
                 .pattern("wrw")
                 .pattern("iwi")
@@ -47,7 +50,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
                 .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
                 .offerTo(cheaperExporter, Identifier.of(Ductwork.MOD_ID, "damper-cheaper"));
 
-        new ShapedRecipeJsonBuilder(Ductwork.DUCT_ITEM, 4)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
                 .pattern("iwi")
                 .pattern("w w")
                 .pattern("iwi")
@@ -59,7 +62,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
 
         // Full price recipes.
 
-        new ShapedRecipeJsonBuilder(Ductwork.COLLECTOR_ITEM, 1)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 1)
                 .pattern("iwi")
                 .pattern("irw")
                 .pattern("iwi")
@@ -69,7 +72,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
                 .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
                 .offerTo(fullPriceExporter, Identifier.of(Ductwork.MOD_ID, "collector"));
 
-        new ShapedRecipeJsonBuilder(Ductwork.DAMPER_ITEM, 4)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
                 .pattern("iwi")
                 .pattern("wrw")
                 .pattern("iwi")
@@ -79,7 +82,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
                 .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
                 .offerTo(fullPriceExporter, Identifier.of(Ductwork.MOD_ID, "damper"));
 
-        new ShapedRecipeJsonBuilder(Ductwork.DUCT_ITEM, 4)
+        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
                 .pattern("iwi")
                 .pattern("w w")
                 .pattern("iwi")

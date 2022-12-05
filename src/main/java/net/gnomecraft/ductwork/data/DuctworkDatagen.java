@@ -6,9 +6,11 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 public class DuctworkDatagen implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator dataGenerator) {
-        dataGenerator.addProvider(DuctworkBlockLootTableProvider::new);
-        dataGenerator.addProvider(DuctworkBlockTagProvider::new);
-        dataGenerator.addProvider(DuctworkItemTagProvider::new);
-        dataGenerator.addProvider(DuctworkRecipeProvider::new);
+        FabricDataGenerator.Pack pack = dataGenerator.createPack();
+
+        pack.addProvider(DuctworkBlockLootTableProvider::new);
+        pack.addProvider(DuctworkBlockTagProvider::new);
+        pack.addProvider(DuctworkItemTagProvider::new);
+        pack.addProvider(DuctworkRecipeProvider::new);
     }
 }

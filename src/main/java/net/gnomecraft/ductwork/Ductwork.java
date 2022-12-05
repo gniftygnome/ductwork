@@ -3,6 +3,7 @@ package net.gnomecraft.ductwork;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -20,13 +21,13 @@ import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceCondition
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +55,9 @@ public class Ductwork implements ModInitializer {
     public static final Identifier DamperBlockId = new Identifier(MOD_ID, "damper");
     public static final Identifier DuctBlockId = new Identifier(MOD_ID, "duct");
 
-    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(Registry.BLOCK_KEY, new Identifier(MOD_ID, "ducts"));
-    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(Registry.ITEM_KEY, new Identifier(MOD_ID, "ducts"));
-    public static final TagKey<Item> WRENCHES = TagKey.of(Registry.ITEM_KEY, new Identifier("c", "wrenches"));
+    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(RegistryKeys.BLOCK, new Identifier(MOD_ID, "ducts"));
+    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier(MOD_ID, "ducts"));
+    public static final TagKey<Item> WRENCHES = TagKey.of(RegistryKeys.ITEM, new Identifier("c", "wrenches"));
 
     @Override
     public void onInitialize() {
@@ -64,19 +65,23 @@ public class Ductwork implements ModInitializer {
         AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
 
         // Collector block
-        COLLECTOR_BLOCK = Registry.register(Registry.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
-        COLLECTOR_ITEM = Registry.register(Registry.ITEM, CollectorBlockId, new BlockItem(COLLECTOR_BLOCK, new Item.Settings().group(ItemGroup.REDSTONE)));
-        COLLECTOR_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, CollectorBlockId, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
+        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
+        COLLECTOR_ITEM = Registry.register(Registries.ITEM, CollectorBlockId, new BlockItem(COLLECTOR_BLOCK, new Item.Settings()));
+        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, CollectorBlockId, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
 
         // Damper block
-        DAMPER_BLOCK = Registry.register(Registry.BLOCK, DamperBlockId, new DamperBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
-        DAMPER_ITEM = Registry.register(Registry.ITEM, DamperBlockId, new BlockItem(DAMPER_BLOCK, new Item.Settings().group(ItemGroup.REDSTONE)));
-        DAMPER_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, DamperBlockId, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
+        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DamperBlockId, new DamperBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
+        DAMPER_ITEM = Registry.register(Registries.ITEM, DamperBlockId, new BlockItem(DAMPER_BLOCK, new Item.Settings()));
+        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DamperBlockId, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
 
         // Duct block
-        DUCT_BLOCK = Registry.register(Registry.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
-        DUCT_ITEM = Registry.register(Registry.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings().group(ItemGroup.REDSTONE)));
-        DUCT_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+        DUCT_BLOCK = Registry.register(Registries.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.of(Material.METAL).hardness(4.0f)));
+        DUCT_ITEM = Registry.register(Registries.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings()));
+        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register((content) -> {
+            content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM);
+        });
 
         // Initialize modules
         DuctworkResourceConditions.init();

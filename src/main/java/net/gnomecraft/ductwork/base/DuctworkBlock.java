@@ -3,6 +3,7 @@ package net.gnomecraft.ductwork.base;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -13,7 +14,6 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -176,19 +176,19 @@ public abstract class DuctworkBlock extends BlockWithEntity {
          */
 
         // Connect to Basalt Crusher Gravel Mills.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
                 neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
         // Connect to Ducts mod Ducts.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
                 neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
             return state.with(BooleanProperty.of(direction.toString()), true);
         }
 
         // Connect to OmniHopper mod OmniHoppers.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
             EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
 
             if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
@@ -197,8 +197,8 @@ public abstract class DuctworkBlock extends BlockWithEntity {
         }
 
         // Connect to Flytre's Pipe mod Pipes
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
@@ -206,12 +206,12 @@ public abstract class DuctworkBlock extends BlockWithEntity {
         }
 
         // Connect to Simple Pipes mod Pipes.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
-                Registry.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...
@@ -219,7 +219,7 @@ public abstract class DuctworkBlock extends BlockWithEntity {
         }
 
         // Connect to Smart Pipes mod SmartPipes.
-        if (Registry.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...
