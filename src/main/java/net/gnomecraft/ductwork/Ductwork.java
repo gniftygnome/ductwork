@@ -19,8 +19,8 @@ import net.gnomecraft.ductwork.duct.DuctEntity;
 import net.gnomecraft.ductwork.duct.DuctScreenHandler;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.MapColor;
-import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
@@ -28,7 +28,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,17 +66,17 @@ public class Ductwork implements ModInitializer {
         AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
 
         // Collector block
-        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.of(Material.BLOCKS_LIGHT, MapColor.IRON_GRAY).requiresTool().strength(3.0f, 4.8f).sounds(BlockSoundGroup.METAL).nonOpaque()));
+        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.copyOf(Blocks.HOPPER).mapColor(MapColor.IRON_GRAY)));
         COLLECTOR_ITEM = Registry.register(Registries.ITEM, CollectorBlockId, new BlockItem(COLLECTOR_BLOCK, new Item.Settings()));
         COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, CollectorBlockId, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
 
         // Damper block
-        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DamperBlockId, new DamperBlock(FabricBlockSettings.of(Material.BLOCKS_LIGHT, MapColor.IRON_GRAY).requiresTool().strength(3.0f, 4.8f).sounds(BlockSoundGroup.METAL).nonOpaque()));
+        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DamperBlockId, new DamperBlock(FabricBlockSettings.copyOf(COLLECTOR_BLOCK)));
         DAMPER_ITEM = Registry.register(Registries.ITEM, DamperBlockId, new BlockItem(DAMPER_BLOCK, new Item.Settings()));
         DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DamperBlockId, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
 
         // Duct block
-        DUCT_BLOCK = Registry.register(Registries.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.of(Material.BLOCKS_LIGHT, MapColor.IRON_GRAY).requiresTool().strength(3.0f, 4.8f).sounds(BlockSoundGroup.METAL).nonOpaque()));
+        DUCT_BLOCK = Registry.register(Registries.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.copyOf(COLLECTOR_BLOCK)));
         DUCT_ITEM = Registry.register(Registries.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings()));
         DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
 
