@@ -29,10 +29,10 @@ make minimal use of game resources.
 
 A Damper is a specialized Duct which accepts items from the block behind it
 and delivers items to the block in front of it.  Unlike the basic Duct, a
-Damper can be locked via Redstone and will obstruct item movement while it
-remains locked.  Dampers can also be temporarily locked or unlocked by the
-player (shift-right-click on them with an empty hand), until the next time
-an adjacent block changes state.
+Damper cannot turn corners, but it can be locked via Redstone and will
+obstruct item movement while it remains locked.  Dampers can also be
+temporarily locked or unlocked by the player (shift-right-click on them
+with an empty hand), until the next time an adjacent block changes state.
 
 ### Collector
 

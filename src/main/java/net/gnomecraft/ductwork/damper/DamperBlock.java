@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
@@ -23,9 +22,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DamperBlock extends DuctworkBlock {
     private static final VoxelShape DAMPER_SHAPE_NS_ENABLED = VoxelShapes.union(
@@ -122,13 +118,6 @@ public class DamperBlock extends DuctworkBlock {
     }
 
     @Override
-    public List<ItemStack> getDroppedStacks(BlockState blockState, LootContext.Builder lootContext$Builder) {
-        ArrayList<ItemStack> dropList = new ArrayList<ItemStack>();
-        dropList.add(new ItemStack(this));
-        return dropList;
-    }
-
-    @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction facing = ctx.getSide().getOpposite();
 
@@ -136,7 +125,10 @@ public class DamperBlock extends DuctworkBlock {
             facing = Direction.DOWN;
         }
 
-        return this.getDefaultState().with(FACING, facing);
+        @SuppressWarnings("ConstantConditions")
+        BlockState state = super.getPlacementState(ctx).with(FACING, facing);
+
+        return state;
     }
 
     @Override
@@ -155,11 +147,12 @@ public class DamperBlock extends DuctworkBlock {
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighbor, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        if (world instanceof World) {
-            state = state.with(ENABLED, !((World) world).isReceivingRedstonePower(pos));
-        }
+        BlockState newState;
 
-        return super.getStateForNeighborUpdate(state, direction, neighbor, world, pos, neighborPos);
+        newState = state.with(ENABLED, !world.isReceivingRedstonePower(pos));
+        newState = super.getStateForNeighborUpdate(newState, direction, neighbor, world, pos, neighborPos);
+
+        return newState;
     }
 
     private void updateEnabled(World world, BlockPos pos, BlockState state) {
@@ -200,6 +193,7 @@ public class DamperBlock extends DuctworkBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        super.appendProperties(builder);
         builder.add(FACING).add(ENABLED);
     }
 

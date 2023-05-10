@@ -3,8 +3,12 @@ package net.gnomecraft.ductwork.base;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
@@ -16,11 +20,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public abstract class DuctworkBlock extends BlockWithEntity {
+public abstract class DuctworkBlock extends BlockWithEntity implements Waterloggable {
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final DirectionProperty INTAKE = DirectionProperty.of("intake");
     public static final BooleanProperty NORTH = BooleanProperty.of("north");
@@ -30,9 +35,12 @@ public abstract class DuctworkBlock extends BlockWithEntity {
     public static final BooleanProperty DOWN  = BooleanProperty.of("down");
     public static final BooleanProperty UP    = BooleanProperty.of("up");
     public static final BooleanProperty ENABLED = BooleanProperty.of("enabled");
+    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     protected DuctworkBlock(Settings settings) {
         super(settings);
+
+        setDefaultState(getDefaultState().with(WATERLOGGED, false));
     }
 
     /**
@@ -227,6 +235,31 @@ public abstract class DuctworkBlock extends BlockWithEntity {
         }
 
         return state.with(BooleanProperty.of(direction.toString()), false);
+    }
+
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(WATERLOGGED);
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return this.getDefaultState()
+                .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+        if (state.get(WATERLOGGED)) {
+            world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+        }
+
+        return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
     }
 
     @Override

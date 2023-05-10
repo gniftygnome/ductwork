@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
@@ -23,9 +22,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DuctBlock extends DuctworkBlock {
     public static final VoxelShape[] DUCT_SHAPE_DICT = new VoxelShape[64];
@@ -128,13 +124,6 @@ public class DuctBlock extends DuctworkBlock {
     }
 
     @Override
-    public List<ItemStack> getDroppedStacks(BlockState blockState, LootContext.Builder lootContext$Builder) {
-        ArrayList<ItemStack> dropList = new ArrayList<ItemStack>();
-        dropList.add(new ItemStack(this));
-        return dropList;
-    }
-
-    @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction facing = ctx.getSide().getOpposite();
 
@@ -142,7 +131,8 @@ public class DuctBlock extends DuctworkBlock {
             facing = Direction.DOWN;
         }
 
-        BlockState state = this.getDefaultState().with(FACING, facing);
+        @SuppressWarnings("ConstantConditions")
+        BlockState state = super.getPlacementState(ctx).with(FACING, facing);
 
         state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
 
@@ -151,9 +141,14 @@ public class DuctBlock extends DuctworkBlock {
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighbor, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        if (direction.equals(state.get(FACING))) { return state; }
+        BlockState newState;
 
-        return getStateWithNeighbor(state, direction, neighbor);
+        newState = super.getStateForNeighborUpdate(state, direction, neighbor, world, pos, neighborPos);
+        if (!direction.equals(state.get(FACING))) {
+            newState = getStateWithNeighbor(newState, direction, neighbor);;
+        }
+
+        return newState;
     }
 
     @Override
@@ -183,6 +178,7 @@ public class DuctBlock extends DuctworkBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        super.appendProperties(builder);
         builder.add(FACING).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP);
     }
 

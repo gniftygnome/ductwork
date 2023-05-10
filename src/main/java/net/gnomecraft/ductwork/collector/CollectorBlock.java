@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.loot.context.LootContext;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
@@ -23,9 +22,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CollectorBlock extends DuctworkBlock {
     public static final VoxelShape[] COLLECTOR_SHAPE_DICT = new VoxelShape[512];
@@ -148,13 +144,6 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
-    public List<ItemStack> getDroppedStacks(BlockState blockState, LootContext.Builder lootContext$Builder) {
-        ArrayList<ItemStack> dropList = new ArrayList<ItemStack>();
-        dropList.add(new ItemStack(this));
-        return dropList;
-    }
-
-    @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         Direction intake = ctx.getSide();
         Direction facing = intake.getOpposite();
@@ -166,7 +155,8 @@ public class CollectorBlock extends DuctworkBlock {
             }
         }
 
-        BlockState state = this.getDefaultState().with(FACING, facing).with(INTAKE, intake);
+        @SuppressWarnings("ConstantConditions")
+        BlockState state = super.getPlacementState(ctx).with(FACING, facing).with(INTAKE, intake);
 
         state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
 
@@ -195,11 +185,13 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighbor, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        if (world instanceof World) {
-            state = state.with(ENABLED, !((World) world).isReceivingRedstonePower(pos));
-        }
+        BlockState newState;
 
-        return getStateWithNeighbor(state, direction, neighbor);
+        newState = state.with(ENABLED, !world.isReceivingRedstonePower(pos));
+        newState = super.getStateForNeighborUpdate(newState, direction, neighbor, world, pos, neighborPos);
+        newState = getStateWithNeighbor(newState, direction, neighbor);
+
+        return newState;
     }
 
     private void updateEnabled(World world, BlockPos pos, BlockState state) {
@@ -239,6 +231,7 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        super.appendProperties(builder);
         builder.add(FACING).add(INTAKE).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP).add(ENABLED);
     }
 
