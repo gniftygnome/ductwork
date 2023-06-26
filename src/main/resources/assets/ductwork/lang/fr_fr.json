@@ -1,0 +1,24 @@
+{
+  "block.ductwork.collector": "Collecteur",
+  "block.ductwork.damper": "Volet",
+  "block.ductwork.duct": "Conduit",
+  
+  "item.ductwork.collector": "Collecteur",
+  "item.ductwork.damper": "Volet",
+  "item.ductwork.duct": "Conduit",
+  
+  "modmenu.descriptionTranslation.ductwork": "Un mod de transfert d'objets simple mais puissant.",
+  "text.autoconfig.ductwork.title": "Configuration de Ductwork",
+  
+  "text.autoconfig.ductwork.option.vanilla": "Conduits limités ?",
+  "text.autoconfig.ductwork.option.vanilla.@PrefixText": "Limiter les fonctionnalités des conduits aux caractéristiques de base de Vanilla ?\n* Interdire les transferts d'objets vers le haut\n* Limiter les collecteurs à l'aspiration vers le bas\n* Les joueurs ne peuvent pas modifier l'état du volet",
+  "text.autoconfig.ductwork.option.vanilla.@Tooltip": "Le serveur a la priorité sur le client ; uniquement pour les nouvelles poses.",
+  
+  "text.autoconfig.ductwork.option.placement": "Pose de conduit sur conduit ?",
+  "text.autoconfig.ductwork.option.placement.@PrefixText": "Mode spécial de pose de conduit sur conduit ?\nUtiliser un objet de conduit sur un bloc de conduit\nplacera le bloc à la place d'ouvrir l'inventaire.",
+  "text.autoconfig.ductwork.option.placement.@Tooltip": "Le serveur a la priorité sur le client.",
+  
+  "text.autoconfig.ductwork.option.cheaper": "Blocs de conduits moins coûteux ?",
+  "text.autoconfig.ductwork.option.cheaper.@PrefixText": "Utiliser moins de fer dans les recettes de conduits ?\nPratique pour les modpacks qui réduisent la production de fer.",
+  "text.autoconfig.ductwork.option.cheaper.@Tooltip": "Le serveur a la priorité sur le client."
+}
