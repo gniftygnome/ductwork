@@ -6,7 +6,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.gnomecraft.ductwork.collector.CollectorBlock;
 import net.gnomecraft.ductwork.collector.CollectorEntity;
 import net.gnomecraft.ductwork.collector.CollectorScreenHandler;
@@ -27,6 +26,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -80,9 +80,8 @@ public class Ductwork implements ModInitializer {
         DUCT_ITEM = Registry.register(Registries.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings()));
         DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
 
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register((content) -> {
-            content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM);
-        });
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE)
+                .register(content -> content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM));
 
         // Initialize modules
         DuctworkResourceConditions.init();
@@ -95,8 +94,8 @@ public class Ductwork implements ModInitializer {
     }
 
     static {
-        COLLECTOR_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(CollectorBlockId, CollectorScreenHandler::new);
-        DAMPER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(DamperBlockId, DamperScreenHandler::new);
-        DUCT_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(DuctBlockId, DuctScreenHandler::new);
+        COLLECTOR_SCREEN_HANDLER = new ScreenHandlerType<>(CollectorScreenHandler::new, FeatureSet.empty());
+        DAMPER_SCREEN_HANDLER = new ScreenHandlerType<>(DamperScreenHandler::new, FeatureSet.empty());
+        DUCT_SCREEN_HANDLER = new ScreenHandlerType<>(DuctScreenHandler::new, FeatureSet.empty());
     }
 }
