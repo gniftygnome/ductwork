@@ -52,7 +52,7 @@ public class DuctBlock extends DuctworkBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, Ductwork.DUCT_ENTITY, DuctEntity::tick);
+        return validateTicker(type, Ductwork.DUCT_ENTITY, DuctEntity::tick);
     }
 
     @Override

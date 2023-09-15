@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.data.server.recipe.RecipeJsonProvider;
+import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
@@ -15,7 +15,6 @@ import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class DuctworkRecipeProvider extends FabricRecipeProvider {
     public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
@@ -23,9 +22,9 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
     }
 
     @Override
-    public void generate(Consumer<RecipeJsonProvider> exporter) {
-        Consumer<RecipeJsonProvider> cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
-        Consumer<RecipeJsonProvider> fullPriceExporter = withConditions(exporter, DefaultResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
+    public void generate(RecipeExporter exporter) {
+        RecipeExporter cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
+        RecipeExporter fullPriceExporter = withConditions(exporter, DefaultResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
 
         // Cheaper recipes.
 

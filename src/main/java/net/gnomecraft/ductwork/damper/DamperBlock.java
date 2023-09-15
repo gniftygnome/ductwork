@@ -71,7 +71,7 @@ public class DamperBlock extends DuctworkBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, Ductwork.DAMPER_ENTITY, DamperEntity::tick);
+        return validateTicker(type, Ductwork.DAMPER_ENTITY, DamperEntity::tick);
     }
 
     @Override
