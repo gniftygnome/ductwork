@@ -20,5 +20,22 @@
 
   "text.autoconfig.ductwork.option.cheaper":   "Cheaper Ductwork Blocks?",
   "text.autoconfig.ductwork.option.cheaper.@PrefixText": "Use less Iron in Ductwork recipes?\nConvenient for iron farm nerfing modpacks.",
-  "text.autoconfig.ductwork.option.cheaper.@Tooltip": "Server overrides client."
+  "text.autoconfig.ductwork.option.cheaper.@Tooltip": "Server overrides client.",
+
+  "text.autoconfig.ductwork.option.itemTransferCooldown":   "Cooldown for item transfer (8 = 4 redstone ticks, just like vanilla)",
+  "text.autoconfig.ductwork.option.itemTransferCooldown.@PrefixText": "Configurable speed in duct blocks.",
+  "text.autoconfig.ductwork.option.itemTransferCooldown.@Tooltip": "Server overrides client.",
+
+  "text.autoconfig.ductwork.option.maxItemStackDuct":   "Max number of simultaneously itemstacks for duct.",
+  "text.autoconfig.ductwork.option.maxItemStackDuct.@PrefixText": "Number of items that can be transferred simultaneously.",
+  "text.autoconfig.ductwork.option.maxItemStackDuct.@Tooltip": "Server overrides client.",
+
+  "text.autoconfig.ductwork.option.maxItemStackCollector":   "Max number of simultaneously itemstacks for collector",
+  "text.autoconfig.ductwork.option.maxItemStackCollector.@PrefixText": "Number of items that can be transferred simultaneously.",
+  "text.autoconfig.ductwork.option.maxItemStackCollector.@Tooltip": "Server overrides client.",
+
+  "text.autoconfig.ductwork.option.maxItemStackDamper":   "Max number of simultaneously itemstacks for damper",
+  "text.autoconfig.ductwork.option.maxItemStackDamper.@PrefixText": "Number of items that can be transferred simultaneously.",
+  "text.autoconfig.ductwork.option.maxItemStackDamper.@Tooltip": "Server overrides client."
+
 }

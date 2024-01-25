@@ -1,6 +1,7 @@
 package net.gnomecraft.ductwork.base;
 
 import net.gnomecraft.cooldowncoordinator.CoordinatedCooldown;
+import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
@@ -16,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Iterator;
 
 public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Inventory {
-    public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
+    public final static int defaultCooldown = Ductwork.getConfig().itemTransferCooldown;  // 4 redstone ticks, just like vanilla
     protected DefaultedList<ItemStack> inventory;
     protected long lastTickTime;
     protected int transferCooldown;

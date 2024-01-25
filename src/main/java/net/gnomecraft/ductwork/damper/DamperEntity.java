@@ -70,7 +70,7 @@ public class DamperEntity extends DuctworkBlockEntity implements SidedInventory 
         if (sourceStorage != null && targetStorage != null) {
             boolean targetEmpty = CooldownCoordinator.isStorageEmpty(targetStorage);
 
-            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0) {
+            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, Ductwork.getConfig().maxItemStackDamper, null) > 0) {
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }
