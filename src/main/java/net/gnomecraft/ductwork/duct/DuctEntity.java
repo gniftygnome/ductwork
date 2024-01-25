@@ -69,7 +69,7 @@ public class DuctEntity extends DuctworkBlockEntity {
         if (sourceStorage != null && targetStorage != null) {
             boolean targetEmpty = CooldownCoordinator.isStorageEmpty(targetStorage);
 
-            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0) {
+            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, Ductwork.getConfig().maxItemStackDuct, null) > 0) {
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }

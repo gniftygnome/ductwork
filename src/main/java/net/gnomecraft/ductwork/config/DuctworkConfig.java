@@ -24,4 +24,26 @@ public class DuctworkConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Gui.Tooltip
     public boolean cheaper = false;
+
+    @Comment("Cooldown for item transfer (8 = 4 redstone ticks, just like vanilla)")
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip
+    public int itemTransferCooldown = 8;
+
+    @Comment("Max number of itemstacks that can be moved simultaneously for duct")
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip
+    public int maxItemStackDuct = 1;
+
+    @Comment("Max number of itemstacks that can be moved simultaneously for collector")
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip
+    public int maxItemStackCollector = 1;
+
+    @Comment("Max number of itemstacks that can be moved simultaneously for damper")
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip
+    public int maxItemStackDamper = 1;
+
+
 }

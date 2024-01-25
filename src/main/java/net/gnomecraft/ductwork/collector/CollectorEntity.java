@@ -147,7 +147,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
         if (sourceStorage != null && targetStorage != null) {
             boolean targetEmpty = CooldownCoordinator.isStorageEmpty(targetStorage);
 
-            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0) {
+            if (StorageUtil.move(sourceStorage, targetStorage, variant -> true, Ductwork.getConfig().maxItemStackCollector, null) > 0) {
                 if (targetEmpty) {
                     CooldownCoordinator.notify(targetEntity);
                 }
@@ -184,7 +184,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
 
         // Try to pull from any discovered storage or inventory...
         if (sourceStorage != null && targetStorage != null) {
-            boolean result =  (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0);
+            boolean result =  (StorageUtil.move(sourceStorage, targetStorage, variant -> true, Ductwork.getConfig().maxItemStackCollector, null) > 0);
             BlockEntity sourceEntity = world.getBlockEntity(pos.offset(intake));
             if (sourceEntity != null) {
                 sourceEntity.markDirty();
