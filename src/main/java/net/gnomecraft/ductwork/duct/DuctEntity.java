@@ -17,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-@SuppressWarnings("UnstableApiUsage")
 public class DuctEntity extends DuctworkBlockEntity {
     public DuctEntity(BlockPos pos, BlockState state) {
         super(Ductwork.DUCT_ENTITY, pos, state);

@@ -1,12 +1,12 @@
 package net.gnomecraft.ductwork.collector;
 
+import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.base.DuctworkBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -24,12 +24,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 public class CollectorBlock extends DuctworkBlock {
+    public static final MapCodec<CollectorBlock> CODEC = CollectorBlock.createCodec(CollectorBlock::new);
     public static final VoxelShape[] COLLECTOR_SHAPE_DICT = new VoxelShape[512];
 
     public CollectorBlock(Settings settings) {
         super(settings);
 
-        setDefaultState(getStateManager().getDefaultState()
+        this.setDefaultState(this.stateManager.getDefaultState()
                 .with(FACING, Direction.DOWN)
                 .with(INTAKE, Direction.UP)
                 .with(NORTH, false)
@@ -48,6 +49,11 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
+    protected MapCodec<CollectorBlock> getCodec() {
+        return CODEC;
+    }
+
+    @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new CollectorEntity(pos, state);
     }
@@ -58,7 +64,7 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!world.isClient) {
             ItemStack mainStack = player.getMainHandStack();
 
@@ -155,8 +161,9 @@ public class CollectorBlock extends DuctworkBlock {
             }
         }
 
-        @SuppressWarnings("ConstantConditions")
-        BlockState state = super.getPlacementState(ctx).with(FACING, facing).with(INTAKE, intake);
+        BlockState state = super.addPlacementState(this.stateManager.getDefaultState(), ctx)
+                .with(FACING, facing)
+                .with(INTAKE, intake);
 
         state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
 
@@ -205,17 +212,6 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-        if (itemStack.hasCustomName()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof CollectorEntity) {
-                ((CollectorEntity)blockEntity).setCustomName(itemStack.getName());
-            }
-        }
-    }
-
-    @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -232,7 +228,7 @@ public class CollectorBlock extends DuctworkBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING).add(INTAKE).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP).add(ENABLED);
+        builder.add(FACING, INTAKE, NORTH, EAST, SOUTH, WEST, DOWN, UP, ENABLED);
     }
 
     @Override

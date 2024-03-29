@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class DuctworkRecipeProvider extends FabricRecipeProvider {
     public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(output);
+        super(output, registriesFuture);
     }
 
     @Override

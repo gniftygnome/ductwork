@@ -1,5 +1,6 @@
 package net.gnomecraft.ductwork.base;
 
+import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -18,30 +19,42 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public abstract class DuctworkBlock extends BlockWithEntity implements Waterloggable {
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final DirectionProperty INTAKE = DirectionProperty.of("intake");
-    public static final BooleanProperty NORTH = BooleanProperty.of("north");
-    public static final BooleanProperty EAST  = BooleanProperty.of("east");
-    public static final BooleanProperty SOUTH = BooleanProperty.of("south");
-    public static final BooleanProperty WEST  = BooleanProperty.of("west");
-    public static final BooleanProperty DOWN  = BooleanProperty.of("down");
-    public static final BooleanProperty UP    = BooleanProperty.of("up");
-    public static final BooleanProperty ENABLED = BooleanProperty.of("enabled");
+    public static final BooleanProperty NORTH = Properties.NORTH;
+    public static final BooleanProperty EAST  = Properties.EAST;
+    public static final BooleanProperty SOUTH = Properties.SOUTH;
+    public static final BooleanProperty WEST  = Properties.WEST;
+    public static final BooleanProperty DOWN  = Properties.DOWN;
+    public static final BooleanProperty UP    = Properties.UP;
+    public static final BooleanProperty ENABLED = Properties.ENABLED;
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+
+    public static final Map<Direction, BooleanProperty> DIR_MAP = Map.of(
+            Direction.NORTH, NORTH,
+            Direction.EAST, EAST,
+            Direction.SOUTH, SOUTH,
+            Direction.WEST, WEST,
+            Direction.DOWN, DOWN,
+            Direction.UP, UP
+    );
 
     protected DuctworkBlock(Settings settings) {
         super(settings);
 
-        setDefaultState(getDefaultState().with(WATERLOGGED, false));
+        this.setDefaultState(this.stateManager.getDefaultState().with(WATERLOGGED, false));
     }
+
+    @Override
+    protected abstract MapCodec<? extends DuctworkBlock> getCodec();
 
     /**
      * This method provides the rotation calculations for all Ductwork blocks when they are to be rotated.
@@ -157,24 +170,24 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
     protected BlockState getStateWithNeighbor(BlockState state, Direction direction, BlockState neighbor) {
         if ((state.contains(FACING) && direction.equals(state.get(FACING))) ||
             (state.contains(INTAKE) && direction.equals(state.get(INTAKE)))) {
-            return state.with(BooleanProperty.of(direction.toString()), false);
+            return state.with(DIR_MAP.get(direction), false);
         }
 
         Block neighborBlock = neighbor.getBlock();
 
         // Connect to Ductwork blocks.
         if (neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Vanilla Hoppers (and some Hopper mods).
         if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Vanilla Droppers.
         if (neighborBlock instanceof DropperBlock && neighbor.get(DropperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         /*
@@ -186,13 +199,13 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         // Connect to Basalt Crusher Gravel Mills.
         if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
                 neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Ducts mod Ducts.
         if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
                 neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to OmniHopper mod OmniHoppers.
@@ -200,7 +213,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
             EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
 
             if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
-                return state.with(BooleanProperty.of(direction.toString()), true);
+                return state.with(DIR_MAP.get(direction), true);
             }
         }
 
@@ -210,7 +223,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Simple Pipes mod Pipes.
@@ -223,7 +236,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Smart Pipes mod SmartPipes.
@@ -231,10 +244,10 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
+            return state.with(DIR_MAP.get(direction), true);
         }
 
-        return state.with(BooleanProperty.of(direction.toString()), false);
+        return state.with(DIR_MAP.get(direction), false);
     }
 
     @Override
@@ -242,10 +255,8 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         builder.add(WATERLOGGED);
     }
 
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState()
-                .with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
+    public BlockState addPlacementState(BlockState state, ItemPlacementContext ctx) {
+        return state.with(WATERLOGGED, ctx.getWorld().getFluidState(ctx.getBlockPos()).getFluid() == Fluids.WATER);
     }
 
     @Override
@@ -273,7 +284,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
     }
 
     @Override
-    public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+    public boolean canPathfindThrough(BlockState state, NavigationType type) {
         return false;
     }
 

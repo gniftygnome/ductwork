@@ -69,4 +69,10 @@ public class DuctScreenHandler extends ScreenHandler {
 
         return newStack;
     }
+
+    @Override
+    public void onClosed(PlayerEntity player) {
+        super.onClosed(player);
+        this.inventory.onClose(player);
+    }
 }

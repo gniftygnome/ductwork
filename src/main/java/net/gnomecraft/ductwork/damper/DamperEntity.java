@@ -18,7 +18,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-@SuppressWarnings("UnstableApiUsage")
 public class DamperEntity extends DuctworkBlockEntity implements SidedInventory {
     public DamperEntity(BlockPos pos, BlockState state) {
         super(Ductwork.DAMPER_ENTITY, pos, state);

@@ -18,11 +18,13 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
 /*
@@ -31,18 +33,17 @@ import net.minecraft.world.World;
  * NOTE: Collecting (extracting) is CollectorBlock.INTAKE which defaults to FACING.getOpposite()...
  * NOTE:
  */
-@SuppressWarnings("UnstableApiUsage")
 public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
     public final static int currentBlockRev = 2;  // hack around Fabric's missing DFU API
     private int blockRev;
 
     // Collector area definitions for Hopper.getInputAreaShape()
-    private final static VoxelShape INPUT_AREA_SHAPE_NORTH = Block.createCuboidShape(  0.0D,   0.0D, -16.0D, 16.0D, 16.0D,  0.0D);
-    private final static VoxelShape INPUT_AREA_SHAPE_EAST  = Block.createCuboidShape( 16.0D,   0.0D,   0.0D, 32.0D, 16.0D, 16.0D);
-    private final static VoxelShape INPUT_AREA_SHAPE_SOUTH = Block.createCuboidShape(  0.0D,   0.0D,  16.0D, 16.0D, 16.0D, 32.0D);
-    private final static VoxelShape INPUT_AREA_SHAPE_WEST  = Block.createCuboidShape(-16.0D,   0.0D,   0.0D,  0.0D, 16.0D, 16.0D);
-    private final static VoxelShape INPUT_AREA_SHAPE_DOWN  = Block.createCuboidShape(  0.0D, -16.0D,   0.0D, 16.0D,  0.0D, 16.0D);
-    private final static VoxelShape INPUT_AREA_SHAPE_UP    = Block.createCuboidShape(  0.0D,  16.0D,   0.0D, 16.0D, 32.0D, 16.0D);
+    private final static Box INPUT_AREA_SHAPE_NORTH = Block.createCuboidShape(  0.0D,   0.0D, -16.0D, 16.0D, 16.0D,  0.0D).getBoundingBoxes().get(0);
+    private final static Box INPUT_AREA_SHAPE_EAST  = Block.createCuboidShape( 16.0D,   0.0D,   0.0D, 32.0D, 16.0D, 16.0D).getBoundingBoxes().get(0);
+    private final static Box INPUT_AREA_SHAPE_SOUTH = Block.createCuboidShape(  0.0D,   0.0D,  16.0D, 16.0D, 16.0D, 32.0D).getBoundingBoxes().get(0);
+    private final static Box INPUT_AREA_SHAPE_WEST  = Block.createCuboidShape(-16.0D,   0.0D,   0.0D,  0.0D, 16.0D, 16.0D).getBoundingBoxes().get(0);
+    private final static Box INPUT_AREA_SHAPE_DOWN  = Block.createCuboidShape(  0.0D, -16.0D,   0.0D, 16.0D,  0.0D, 16.0D).getBoundingBoxes().get(0);
+    private final static Box INPUT_AREA_SHAPE_UP    = Block.createCuboidShape(  0.0D,  16.0D,   0.0D, 16.0D, 32.0D, 16.0D).getBoundingBoxes().get(0);
 
     public CollectorEntity(BlockPos pos, BlockState state) {
         super(Ductwork.COLLECTOR_ENTITY, pos, state);
@@ -58,18 +59,18 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
     }
 
     @Override
-    public void writeNbt(NbtCompound tag) {
+    public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         // Implement hack around Fabric's missing DFU API.
         if (this.blockRev >= 0) {
             tag.putShort("BlockRev", (short) this.blockRev);
         }
 
-        super.writeNbt(tag);
+        super.writeNbt(tag, registryLookup);
     }
 
     @Override
-    public void readNbt(NbtCompound tag) {
-        super.readNbt(tag);
+    public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+        super.readNbt(tag, registryLookup);
 
         // Implement hack around Fabric's missing DFU API.
         this.blockRev = tag.getShort("BlockRev");
@@ -167,16 +168,17 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
     private boolean pull(World world, BlockPos pos, BlockState state, CollectorEntity entity) {
         // Extraction (intake) on the opposite side, in the opposite direction...
         Direction intake = state.get(CollectorBlock.INTAKE);
+        BlockPos sourcePos = pos.offset(intake);
         Storage<ItemVariant> targetStorage = ItemStorage.SIDED.find(world, pos, state, entity, intake);
 
         // Try to find storage first.  This will also find stationary inventories.
-        Storage<ItemVariant> sourceStorage = ItemStorage.SIDED.find(world, pos.offset(intake), intake.getOpposite());
+        Storage<ItemVariant> sourceStorage = ItemStorage.SIDED.find(world, sourcePos, intake.getOpposite());
 
         // If we don't find storage, try to find an inventory like a hopper would.
         // This will find mobile inventories (hopper or chest minecart, chest boat?, etc.).
         // HopperBlockEntity.getInventoryAt() will pick one of the available mobile inventories at random.
         if (sourceStorage == null) {
-            Inventory sourceInventory =  HopperBlockEntity.getInventoryAt(world, pos.offset(intake));
+            Inventory sourceInventory =  HopperBlockEntity.getInventoryAt(world, sourcePos);
             if (sourceInventory != null) {
                 sourceStorage = InventoryStorage.of(sourceInventory, intake.getOpposite());
             }
@@ -185,7 +187,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
         // Try to pull from any discovered storage or inventory...
         if (sourceStorage != null && targetStorage != null) {
             boolean result =  (StorageUtil.move(sourceStorage, targetStorage, variant -> true, 1, null) > 0);
-            BlockEntity sourceEntity = world.getBlockEntity(pos.offset(intake));
+            BlockEntity sourceEntity = world.getBlockEntity(sourcePos);
             if (sourceEntity != null) {
                 sourceEntity.markDirty();
             }
@@ -194,9 +196,12 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
 
         // Then if no inventory was found, try to pull entities through the intake of the collector.
         // We implement the Hopper interface so we can do this small bit of code reuse.
-        for (ItemEntity itemEntity : HopperBlockEntity.getInputItemEntities(world, entity)) {
-            if (HopperBlockEntity.extract(entity, itemEntity)) {
-                return true;
+        BlockState sourceState = world.getBlockState(sourcePos);
+        if (!sourceState.isFullCube(world, sourcePos) || sourceState.isIn(BlockTags.DOES_NOT_BLOCK_HOPPERS)) {
+            for (ItemEntity itemEntity : HopperBlockEntity.getInputItemEntities(world, entity)) {
+                if (HopperBlockEntity.extract(entity, itemEntity)) {
+                    return true;
+                }
             }
         }
 
@@ -205,7 +210,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
     }
 
     @Override
-    public VoxelShape getInputAreaShape() {
+    public Box getInputAreaShape() {
         return switch (this.getCachedState().get(CollectorBlock.INTAKE)) {
             case NORTH -> INPUT_AREA_SHAPE_NORTH;
             case EAST  -> INPUT_AREA_SHAPE_EAST;
@@ -231,4 +236,9 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
         return (double)this.pos.getZ() + 0.5;
     }
 
+    @Override
+    public boolean canBlockFromAbove() {
+        // We implement our own sided version of the associated logic in the `pull` method.
+        return false;
+    }
 }

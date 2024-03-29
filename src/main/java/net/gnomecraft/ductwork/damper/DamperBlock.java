@@ -1,12 +1,12 @@
 package net.gnomecraft.ductwork.damper;
 
+import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.base.DuctworkBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 public class DamperBlock extends DuctworkBlock {
+    public static final MapCodec<DamperBlock> CODEC = DamperBlock.createCodec(DamperBlock::new);
     private static final VoxelShape DAMPER_SHAPE_NS_ENABLED = VoxelShapes.union(
             Block.createCuboidShape(5.0D,  5.0D, 0.0D, 11.0D, 11.0D, 16.0D),
             Block.createCuboidShape(3.0D,  7.0D, 4.0D, 5.0D,  9.0D,  12.0D),
@@ -58,10 +59,15 @@ public class DamperBlock extends DuctworkBlock {
     public DamperBlock(Settings settings) {
         super(settings);
 
-        setDefaultState(getStateManager().getDefaultState()
+        this.setDefaultState(this.stateManager.getDefaultState()
                 .with(FACING, Direction.DOWN)
                 .with(ENABLED,true)
         );
+    }
+
+    @Override
+    protected MapCodec<DamperBlock> getCodec() {
+        return CODEC;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class DamperBlock extends DuctworkBlock {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!world.isClient) {
             ItemStack mainStack = player.getMainHandStack();
 
@@ -125,8 +131,9 @@ public class DamperBlock extends DuctworkBlock {
             facing = Direction.DOWN;
         }
 
-        @SuppressWarnings("ConstantConditions")
-        BlockState state = super.getPlacementState(ctx).with(FACING, facing);
+        @SuppressWarnings({"RedundantSuppression", "UnusedAssignment"})
+        BlockState state = super.addPlacementState(this.stateManager.getDefaultState(), ctx)
+                .with(FACING, facing);
 
         return state;
     }
@@ -167,17 +174,6 @@ public class DamperBlock extends DuctworkBlock {
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-        if (itemStack.hasCustomName()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof DamperEntity) {
-                ((DamperEntity)blockEntity).setCustomName(itemStack.getName());
-            }
-        }
-    }
-
-    @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
@@ -194,7 +190,7 @@ public class DamperBlock extends DuctworkBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING).add(ENABLED);
+        builder.add(FACING, ENABLED);
     }
 
     @Override

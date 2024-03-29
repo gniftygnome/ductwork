@@ -32,10 +32,10 @@
     "ductwork.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.13.3",
+    "fabricloader": ">=0.15.7",
     "fabric-api": "*",
-    "minecraft": ">=1.20.2 <1.21",
-    "cooldown-coordinator": ">=0.6.2",
+    "minecraft": ">1.20.4 <1.21",
+    "cooldown-coordinator": ">=0.7.0",
     "cloth-config": "*"
   }
 }

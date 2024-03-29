@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class DuctworkBlockLootTableProvider extends FabricBlockLootTableProvider {
     protected DuctworkBlockLootTableProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
-        super(output);
+        super(output, registriesFuture);
     }
 
     @Override

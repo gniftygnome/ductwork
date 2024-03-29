@@ -9,6 +9,7 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -36,20 +37,20 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     }
 
     @Override
-    public void writeNbt(NbtCompound tag) {
-        Inventories.writeNbt(tag, this.inventory);
+    public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+        Inventories.writeNbt(tag, this.inventory, registryLookup);
         tag.putShort("TransferCooldown", (short)this.transferCooldown);
 
-        super.writeNbt(tag);
+        super.writeNbt(tag, registryLookup);
     }
 
     @Override
-    public void readNbt(NbtCompound tag) {
-        super.readNbt(tag);
+    public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+        super.readNbt(tag, registryLookup);
 
         this.transferCooldown = tag.getShort("TransferCooldown");
         inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-        Inventories.readNbt(tag, this.inventory);
+        Inventories.readNbt(tag, this.inventory, registryLookup);
     }
 
     @Override
@@ -162,5 +163,19 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     @Override
     public void clear() {
         this.inventory.clear();
+    }
+
+    @Override
+    protected DefaultedList<ItemStack> getHeldStacks() {
+        return this.inventory;
+    }
+
+    @Override
+    protected void setHeldStacks(DefaultedList<ItemStack> inventory) {
+        if (inventory.size() != this.inventory.size()) {
+            throw new IllegalArgumentException("setHeldStacks called with wrong-size inventory");
+        }
+
+        this.inventory = inventory;
     }
 }

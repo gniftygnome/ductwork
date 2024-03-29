@@ -1,12 +1,12 @@
 package net.gnomecraft.ductwork.duct;
 
+import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.base.DuctworkBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -24,12 +24,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 
 public class DuctBlock extends DuctworkBlock {
+    public static final MapCodec<DuctBlock> CODEC = DuctBlock.createCodec(DuctBlock::new);
     public static final VoxelShape[] DUCT_SHAPE_DICT = new VoxelShape[64];
 
     public DuctBlock(Settings settings) {
         super(settings);
 
-        setDefaultState(getStateManager().getDefaultState()
+        this.setDefaultState(this.stateManager.getDefaultState()
                 .with(FACING, Direction.DOWN)
                 .with(NORTH, false)
                 .with(EAST,  false)
@@ -46,6 +47,11 @@ public class DuctBlock extends DuctworkBlock {
     }
 
     @Override
+    protected MapCodec<DuctBlock> getCodec() {
+        return CODEC;
+    }
+
+    @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new DuctEntity(pos, state);
     }
@@ -56,7 +62,7 @@ public class DuctBlock extends DuctworkBlock {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (!world.isClient) {
             ItemStack mainStack = player.getMainHandStack();
             Direction facing = state.get(FACING);
@@ -131,8 +137,8 @@ public class DuctBlock extends DuctworkBlock {
             facing = Direction.DOWN;
         }
 
-        @SuppressWarnings("ConstantConditions")
-        BlockState state = super.getPlacementState(ctx).with(FACING, facing);
+        BlockState state = super.addPlacementState(this.stateManager.getDefaultState(), ctx)
+                .with(FACING, facing);
 
         state = resetInputConnections(state, ctx.getWorld(), ctx.getBlockPos());
 
@@ -145,21 +151,10 @@ public class DuctBlock extends DuctworkBlock {
 
         newState = super.getStateForNeighborUpdate(state, direction, neighbor, world, pos, neighborPos);
         if (!direction.equals(state.get(FACING))) {
-            newState = getStateWithNeighbor(newState, direction, neighbor);;
+            newState = getStateWithNeighbor(newState, direction, neighbor);
         }
 
         return newState;
-    }
-
-    @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-        if (itemStack.hasCustomName()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof DuctEntity) {
-                ((DuctEntity)blockEntity).setCustomName(itemStack.getName());
-            }
-        }
     }
 
     @Override
@@ -179,7 +174,7 @@ public class DuctBlock extends DuctworkBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING).add(NORTH).add(EAST).add(SOUTH).add(WEST).add(DOWN).add(UP);
+        builder.add(FACING, NORTH, EAST, SOUTH, WEST, DOWN, UP);
     }
 
     @Override

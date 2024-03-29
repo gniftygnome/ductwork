@@ -37,7 +37,7 @@ public class ItemUseMixin {
 
         if (state.isIn(Ductwork.DUCT_BLOCKS) && hand.equals(player.preferredHand)) {
             ActionResult onUseResult;
-            if ((onUseResult = state.onUse(world, player, hand, hitResult)).isAccepted()) {
+            if ((onUseResult = state.onUse(world, player, hitResult)).isAccepted()) {
                 Criteria.ITEM_USED_ON_BLOCK.trigger(player, pos, stack.copy());
                 cir.setReturnValue(onUseResult);
             }
