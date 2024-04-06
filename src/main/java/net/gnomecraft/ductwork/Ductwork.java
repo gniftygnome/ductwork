@@ -4,7 +4,6 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.gnomecraft.ductwork.collector.CollectorBlock;
 import net.gnomecraft.ductwork.collector.CollectorEntity;
@@ -17,6 +16,7 @@ import net.gnomecraft.ductwork.duct.DuctBlock;
 import net.gnomecraft.ductwork.duct.DuctEntity;
 import net.gnomecraft.ductwork.duct.DuctScreenHandler;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.MapColor;
@@ -36,6 +36,14 @@ public class Ductwork implements ModInitializer {
     public static final String MOD_ID = "ductwork";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static final Identifier COLLECTOR_BLOCK_ID = new Identifier(MOD_ID, "collector");
+    public static final Identifier DAMPER_BLOCK_ID = new Identifier(MOD_ID, "damper");
+    public static final Identifier DUCT_BLOCK_ID = new Identifier(MOD_ID, "duct");
+
+    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(RegistryKeys.BLOCK, new Identifier(MOD_ID, "ducts"));
+    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier(MOD_ID, "ducts"));
+    public static final TagKey<Item> WRENCHES = TagKey.of(RegistryKeys.ITEM, new Identifier("c", "wrenches"));
+
     public static Block COLLECTOR_BLOCK;
     public static BlockItem COLLECTOR_ITEM;
     public static BlockEntityType<CollectorEntity> COLLECTOR_ENTITY;
@@ -48,17 +56,9 @@ public class Ductwork implements ModInitializer {
     public static BlockItem DUCT_ITEM;
     public static BlockEntityType<DuctEntity> DUCT_ENTITY;
 
-    public static final ScreenHandlerType<CollectorScreenHandler> COLLECTOR_SCREEN_HANDLER;
-    public static final ScreenHandlerType<DamperScreenHandler> DAMPER_SCREEN_HANDLER;
-    public static final ScreenHandlerType<DuctScreenHandler> DUCT_SCREEN_HANDLER;
-
-    public static final Identifier CollectorBlockId = new Identifier(MOD_ID, "collector");
-    public static final Identifier DamperBlockId = new Identifier(MOD_ID, "damper");
-    public static final Identifier DuctBlockId = new Identifier(MOD_ID, "duct");
-
-    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(RegistryKeys.BLOCK, new Identifier(MOD_ID, "ducts"));
-    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(RegistryKeys.ITEM, new Identifier(MOD_ID, "ducts"));
-    public static final TagKey<Item> WRENCHES = TagKey.of(RegistryKeys.ITEM, new Identifier("c", "wrenches"));
+    public static ScreenHandlerType<CollectorScreenHandler> COLLECTOR_SCREEN_HANDLER;
+    public static ScreenHandlerType<DamperScreenHandler> DAMPER_SCREEN_HANDLER;
+    public static ScreenHandlerType<DuctScreenHandler> DUCT_SCREEN_HANDLER;
 
     @Override
     public void onInitialize() {
@@ -66,19 +66,22 @@ public class Ductwork implements ModInitializer {
         AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
 
         // Collector block
-        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, CollectorBlockId, new CollectorBlock(FabricBlockSettings.copyOf(Blocks.HOPPER).mapColor(MapColor.IRON_GRAY)));
-        COLLECTOR_ITEM = Registry.register(Registries.ITEM, CollectorBlockId, new BlockItem(COLLECTOR_BLOCK, new Item.Settings()));
-        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, CollectorBlockId, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
+        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, COLLECTOR_BLOCK_ID, new CollectorBlock(AbstractBlock.Settings.copy(Blocks.HOPPER).mapColor(MapColor.IRON_GRAY)));
+        COLLECTOR_ITEM = Registry.register(Registries.ITEM, COLLECTOR_BLOCK_ID, new BlockItem(COLLECTOR_BLOCK, new Item.Settings()));
+        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, COLLECTOR_BLOCK_ID, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
+        COLLECTOR_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, COLLECTOR_BLOCK_ID, new ScreenHandlerType<>(CollectorScreenHandler::new, FeatureSet.empty()));
 
         // Damper block
-        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DamperBlockId, new DamperBlock(FabricBlockSettings.copyOf(COLLECTOR_BLOCK)));
-        DAMPER_ITEM = Registry.register(Registries.ITEM, DamperBlockId, new BlockItem(DAMPER_BLOCK, new Item.Settings()));
-        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DamperBlockId, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
+        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DAMPER_BLOCK_ID, new DamperBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK)));
+        DAMPER_ITEM = Registry.register(Registries.ITEM, DAMPER_BLOCK_ID, new BlockItem(DAMPER_BLOCK, new Item.Settings()));
+        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DAMPER_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
+        DAMPER_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DAMPER_BLOCK_ID, new ScreenHandlerType<>(DamperScreenHandler::new, FeatureSet.empty()));
 
         // Duct block
-        DUCT_BLOCK = Registry.register(Registries.BLOCK, DuctBlockId, new DuctBlock(FabricBlockSettings.copyOf(COLLECTOR_BLOCK)));
-        DUCT_ITEM = Registry.register(Registries.ITEM, DuctBlockId, new BlockItem(DUCT_BLOCK, new Item.Settings()));
-        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DuctBlockId, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+        DUCT_BLOCK = Registry.register(Registries.BLOCK, DUCT_BLOCK_ID, new DuctBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK)));
+        DUCT_ITEM = Registry.register(Registries.ITEM, DUCT_BLOCK_ID, new BlockItem(DUCT_BLOCK, new Item.Settings()));
+        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DUCT_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+        DUCT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DUCT_BLOCK_ID, new ScreenHandlerType<>(DuctScreenHandler::new, FeatureSet.empty()));
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE)
                 .register(content -> content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM));
@@ -91,11 +94,5 @@ public class Ductwork implements ModInitializer {
 
     public static DuctworkConfig getConfig() {
         return AutoConfig.getConfigHolder(DuctworkConfig.class).getConfig();
-    }
-
-    static {
-        COLLECTOR_SCREEN_HANDLER = new ScreenHandlerType<>(CollectorScreenHandler::new, FeatureSet.empty());
-        DAMPER_SCREEN_HANDLER = new ScreenHandlerType<>(DamperScreenHandler::new, FeatureSet.empty());
-        DUCT_SCREEN_HANDLER = new ScreenHandlerType<>(DuctScreenHandler::new, FeatureSet.empty());
     }
 }
