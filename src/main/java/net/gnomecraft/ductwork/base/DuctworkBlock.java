@@ -1,5 +1,6 @@
 package net.gnomecraft.ductwork.base;
 
+import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
@@ -41,6 +42,11 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         super(settings);
 
         setDefaultState(getDefaultState().with(WATERLOGGED, false));
+    }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return null;
     }
 
     /**
