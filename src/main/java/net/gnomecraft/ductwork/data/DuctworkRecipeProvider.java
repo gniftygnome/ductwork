@@ -2,7 +2,7 @@ package net.gnomecraft.ductwork.data;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
@@ -24,7 +24,7 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
     @Override
     public void generate(RecipeExporter exporter) {
         RecipeExporter cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
-        RecipeExporter fullPriceExporter = withConditions(exporter, DefaultResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
+        RecipeExporter fullPriceExporter = withConditions(exporter, ResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
 
         // Cheaper recipes.
 
