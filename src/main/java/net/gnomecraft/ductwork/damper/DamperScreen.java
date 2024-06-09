@@ -1,5 +1,6 @@
 package net.gnomecraft.ductwork.damper;
 
+import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -8,7 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class DamperScreen extends HandledScreen<ScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier("ductwork", "textures/gui/container/damper_screen.png");
+    private static final Identifier TEXTURE = Identifier.of(Ductwork.MOD_ID, "textures/gui/container/damper_screen.png");
 
     public DamperScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);

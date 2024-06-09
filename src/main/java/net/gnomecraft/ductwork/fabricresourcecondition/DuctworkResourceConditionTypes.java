@@ -14,6 +14,6 @@ public final class DuctworkResourceConditionTypes {
     }
 
     private static <T extends ResourceCondition> ResourceConditionType<T> createResourceConditionType(String name, MapCodec<T> codec) {
-        return ResourceConditionType.create(new Identifier(Ductwork.MOD_ID, name), codec);
+        return ResourceConditionType.create(Identifier.of(Ductwork.MOD_ID, name), codec);
     }
 }

@@ -197,19 +197,19 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
          */
 
         // Connect to Basalt Crusher Gravel Mills.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("basalt-crusher", "gravel_mill")) &&
                 neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
             return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to Ducts mod Ducts.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("ducts", "duct")) &&
                 neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
             return state.with(DIR_MAP.get(direction), true);
         }
 
         // Connect to OmniHopper mod OmniHoppers.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("omnihopper", "omnihopper"))) {
             EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
 
             if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
@@ -218,8 +218,8 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         }
 
         // Connect to Flytre's Pipe mod Pipes
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("pipe", "item_pipe")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("pipe", "fast_pipe"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
@@ -227,12 +227,12 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         }
 
         // Connect to Simple Pipes mod Pipes.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_wooden_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_stone_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_clay_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_iron_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_gold_item")) ||
+                Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("simple_pipes", "pipe_diamond_item"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...
@@ -240,7 +240,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
         }
 
         // Connect to Smart Pipes mod SmartPipes.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
+        if (Registries.BLOCK.getId(neighborBlock).equals(Identifier.of("smart_pipes", "smart_pipe"))) {
 
             // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
             // So I'm being lazy here and just assuming they will...

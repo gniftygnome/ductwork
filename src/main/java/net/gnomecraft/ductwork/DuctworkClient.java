@@ -21,7 +21,7 @@ public class DuctworkClient implements ClientModInitializer {
         HandledScreens.register(Ductwork.DUCT_SCREEN_HANDLER, DuctScreen::new);
 
         FabricLoader.getInstance().getModContainer("ductwork").ifPresent(modContainer -> {
-            ResourceManagerHelper.registerBuiltinResourcePack(new Identifier(Ductwork.MOD_ID, "directionalducts"),  modContainer, ResourcePackActivationType.NORMAL);
+            ResourceManagerHelper.registerBuiltinResourcePack(Identifier.of(Ductwork.MOD_ID, "directionalducts"),  modContainer, ResourcePackActivationType.NORMAL);
         });
     }
 }

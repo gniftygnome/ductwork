@@ -7,6 +7,9 @@
   "item.ductwork.damper":     "Damper",
   "item.ductwork.duct":       "Duct",
 
+  "tag.item.c.wrenches":      "Wrenches",
+  "tag.item.ductwork.ducts":  "Ductwork Ducts",
+
   "modmenu.descriptionTranslation.ductwork":   "A simple yet powerful item transfer mod.",
   "text.autoconfig.ductwork.title":            "Ductwork Configuration",
 
