@@ -34,7 +34,7 @@
   "depends": {
     "fabricloader": ">=0.15.7",
     "fabric-api": "*",
-    "minecraft": ">=1.21-beta <1.22",
+    "minecraft": ">=1.21 <1.22",
     "cooldown-coordinator": ">=0.7.2",
     "cloth-config": "*"
   }
