@@ -17,11 +17,13 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 
 public class DuctBlock extends DuctworkBlock {
     public static final MapCodec<DuctBlock> CODEC = DuctBlock.createCodec(DuctBlock::new);
@@ -146,12 +148,12 @@ public class DuctBlock extends DuctworkBlock {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighbor, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         BlockState newState;
 
-        newState = super.getStateForNeighborUpdate(state, direction, neighbor, world, pos, neighborPos);
+        newState = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
         if (!direction.equals(state.get(FACING))) {
-            newState = getStateWithNeighbor(newState, direction, neighbor);
+            newState = getStateWithNeighbor(newState, direction, neighborState);
         }
 
         return newState;

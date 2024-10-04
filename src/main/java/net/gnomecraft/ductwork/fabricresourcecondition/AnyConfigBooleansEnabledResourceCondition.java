@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.RegistryOps;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -21,7 +21,7 @@ record AnyConfigBooleansEnabledResourceCondition(List<String> configBooleans) im
 	}
 
 	@Override
-	public boolean test(@Nullable RegistryWrapper.WrapperLookup registryLookup) {
+	public boolean test(@Nullable RegistryOps.RegistryInfoGetter registryInfo) {
 		return DuctworkResourceConditions.configBooleansEnabled(this.configBooleans, false);
 	}
 }

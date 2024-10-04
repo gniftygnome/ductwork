@@ -7,7 +7,7 @@ import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
 import net.minecraft.advancement.criterion.InventoryChangedCriterion;
 import net.minecraft.data.server.recipe.RecipeExporter;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.server.recipe.RecipeGenerator;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.RegistryWrapper;
@@ -22,73 +22,83 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
     }
 
     @Override
-    public void generate(RecipeExporter exporter) {
-        RecipeExporter cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
-        RecipeExporter fullPriceExporter = withConditions(exporter, ResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
+    public RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup registryLookup, RecipeExporter exporter) {
+        return new RecipeGenerator(registryLookup, exporter) {
+            @Override
+            public void generate() {
+                RecipeExporter cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
+                RecipeExporter fullPriceExporter = withConditions(exporter, ResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
 
-        // Cheaper recipes.
+                // Cheaper recipes.
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 4)
-                .pattern("Iwi")
-                .pattern("Irw")
-                .pattern("Iwi")
-                .input('I', Items.IRON_INGOT)
-                .input('i', Items.IRON_NUGGET)
-                .input('r', Items.REDSTONE)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                .offerTo(cheaperExporter, Identifier.of(Ductwork.MOD_ID, "collector-cheaper"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 4)
+                        .pattern("Iwi")
+                        .pattern("Irw")
+                        .pattern("Iwi")
+                        .input('I', Items.IRON_INGOT)
+                        .input('i', Items.IRON_NUGGET)
+                        .input('r', Items.REDSTONE)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
+                        .offerTo(cheaperExporter, "collector-cheaper");
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
-                .pattern("iwi")
-                .pattern("wrw")
-                .pattern("iwi")
-                .input('i', Items.IRON_NUGGET)
-                .input('r', Items.REDSTONE)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                .offerTo(cheaperExporter, Identifier.of(Ductwork.MOD_ID, "damper-cheaper"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
+                        .pattern("iwi")
+                        .pattern("wrw")
+                        .pattern("iwi")
+                        .input('i', Items.IRON_NUGGET)
+                        .input('r', Items.REDSTONE)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
+                        .offerTo(cheaperExporter, "damper-cheaper");
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
-                .pattern("iwi")
-                .pattern("w w")
-                .pattern("iwi")
-                .input('i', Items.IRON_NUGGET)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
-                .offerTo(cheaperExporter, Identifier.of(Ductwork.MOD_ID, "duct-cheaper"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
+                        .pattern("iwi")
+                        .pattern("w w")
+                        .pattern("iwi")
+                        .input('i', Items.IRON_NUGGET)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
+                        .offerTo(cheaperExporter, "duct-cheaper");
 
 
-        // Full price recipes.
+                // Full price recipes.
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 1)
-                .pattern("iwi")
-                .pattern("irw")
-                .pattern("iwi")
-                .input('i', Items.IRON_INGOT)
-                .input('r', Items.REDSTONE)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                .offerTo(fullPriceExporter, Identifier.of(Ductwork.MOD_ID, "collector"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 1)
+                        .pattern("iwi")
+                        .pattern("irw")
+                        .pattern("iwi")
+                        .input('i', Items.IRON_INGOT)
+                        .input('r', Items.REDSTONE)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
+                        .offerTo(fullPriceExporter, "collector");
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
-                .pattern("iwi")
-                .pattern("wrw")
-                .pattern("iwi")
-                .input('i', Items.IRON_INGOT)
-                .input('r', Items.REDSTONE)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                .offerTo(fullPriceExporter, Identifier.of(Ductwork.MOD_ID, "damper"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
+                        .pattern("iwi")
+                        .pattern("wrw")
+                        .pattern("iwi")
+                        .input('i', Items.IRON_INGOT)
+                        .input('r', Items.REDSTONE)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
+                        .offerTo(fullPriceExporter, "damper");
 
-        new ShapedRecipeJsonBuilder(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
-                .pattern("iwi")
-                .pattern("w w")
-                .pattern("iwi")
-                .input('i', Items.IRON_INGOT)
-                .input('w', ItemTags.PLANKS)
-                .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
-                .offerTo(fullPriceExporter, Identifier.of(Ductwork.MOD_ID, "duct"));
+                createShaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
+                        .pattern("iwi")
+                        .pattern("w w")
+                        .pattern("iwi")
+                        .input('i', Items.IRON_INGOT)
+                        .input('w', ItemTags.PLANKS)
+                        .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
+                        .offerTo(fullPriceExporter, "duct");
+            }
+        };
+    }
+
+    @Override
+    public String getName() {
+        return "Ductwork Recipes";
     }
 
     @Override
