@@ -11,6 +11,7 @@ public class DuctworkDatagen implements DataGeneratorEntrypoint {
         pack.addProvider(DuctworkBlockLootTableProvider::new);
         pack.addProvider(DuctworkBlockTagProvider::new);
         pack.addProvider(DuctworkItemTagProvider::new);
+        pack.addProvider(DuctworkModelProvider::new);
         pack.addProvider(DuctworkRecipeProvider::new);
     }
 }

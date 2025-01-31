@@ -25,4 +25,9 @@ public class DuctworkBlockTagProvider extends FabricTagProvider.BlockTagProvider
                 .add(Ductwork.DAMPER_BLOCK)
                 .add(Ductwork.DUCT_BLOCK);
     }
+
+    @Override
+    public String getName() {
+        return "Ductwork Block Tags";
+    }
 }

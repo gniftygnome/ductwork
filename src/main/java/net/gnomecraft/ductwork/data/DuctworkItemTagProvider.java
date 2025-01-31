@@ -19,4 +19,9 @@ public class DuctworkItemTagProvider extends FabricTagProvider.ItemTagProvider {
                 .add(Ductwork.DAMPER_ITEM)
                 .add(Ductwork.DUCT_ITEM);
     }
+
+    @Override
+    public String getName() {
+        return "Ductwork Item Tags";
+    }
 }

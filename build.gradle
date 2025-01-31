@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7.+'
+    id 'fabric-loom' version '1.9.+'
     id 'maven-publish'
 }
 
@@ -68,27 +68,9 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
 }
 
-loom {
-    runs {
-        datagen {
-            server()
-
-            name = "Data Generation"
-            runDir = "build/datagen"
-
-            vmArg("-Dfabric-api.datagen")
-            vmArg("-Dfabric-api.datagen.output-dir=${file("src/main/generated")}")
-        }
-    }
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs += [
-                    "src/main/generated"
-            ]
-        }
+fabricApi {
+    configureDataGeneration {
+        client = true
     }
 }
 

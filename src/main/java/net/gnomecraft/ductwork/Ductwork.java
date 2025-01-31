@@ -68,20 +68,20 @@ public class Ductwork implements ModInitializer {
 
         // Collector block
         COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, COLLECTOR_BLOCK_ID, new CollectorBlock(AbstractBlock.Settings.copy(Blocks.HOPPER).mapColor(MapColor.IRON_GRAY).registryKey(RegistryKey.of(RegistryKeys.BLOCK, COLLECTOR_BLOCK_ID))));
-        COLLECTOR_ITEM = Registry.register(Registries.ITEM, COLLECTOR_BLOCK_ID, new BlockItem(COLLECTOR_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, COLLECTOR_BLOCK_ID))));
-        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, COLLECTOR_BLOCK_ID, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build(null));
+        COLLECTOR_ITEM = Registry.register(Registries.ITEM, COLLECTOR_BLOCK_ID, new BlockItem(COLLECTOR_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, COLLECTOR_BLOCK_ID)).useBlockPrefixedTranslationKey()));
+        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, COLLECTOR_BLOCK_ID, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build());
         COLLECTOR_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, COLLECTOR_BLOCK_ID, new ScreenHandlerType<>(CollectorScreenHandler::new, FeatureSet.empty()));
 
         // Damper block
         DAMPER_BLOCK = Registry.register(Registries.BLOCK, DAMPER_BLOCK_ID, new DamperBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, DAMPER_BLOCK_ID))));
-        DAMPER_ITEM = Registry.register(Registries.ITEM, DAMPER_BLOCK_ID, new BlockItem(DAMPER_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DAMPER_BLOCK_ID))));
-        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DAMPER_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build(null));
+        DAMPER_ITEM = Registry.register(Registries.ITEM, DAMPER_BLOCK_ID, new BlockItem(DAMPER_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DAMPER_BLOCK_ID)).useBlockPrefixedTranslationKey()));
+        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DAMPER_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build());
         DAMPER_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DAMPER_BLOCK_ID, new ScreenHandlerType<>(DamperScreenHandler::new, FeatureSet.empty()));
 
         // Duct block
         DUCT_BLOCK = Registry.register(Registries.BLOCK, DUCT_BLOCK_ID, new DuctBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, DUCT_BLOCK_ID))));
-        DUCT_ITEM = Registry.register(Registries.ITEM, DUCT_BLOCK_ID, new BlockItem(DUCT_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DUCT_BLOCK_ID))));
-        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DUCT_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build(null));
+        DUCT_ITEM = Registry.register(Registries.ITEM, DUCT_BLOCK_ID, new BlockItem(DUCT_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DUCT_BLOCK_ID)).useBlockPrefixedTranslationKey()));
+        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DUCT_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build());
         DUCT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DUCT_BLOCK_ID, new ScreenHandlerType<>(DuctScreenHandler::new, FeatureSet.empty()));
 
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE)

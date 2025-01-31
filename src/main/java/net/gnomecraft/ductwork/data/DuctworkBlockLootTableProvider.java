@@ -18,4 +18,9 @@ public class DuctworkBlockLootTableProvider extends FabricBlockLootTableProvider
         addDrop(Ductwork.DAMPER_BLOCK);
         addDrop(Ductwork.DUCT_BLOCK);
     }
+
+    @Override
+    public String getName() {
+        return "Ductwork Block Loot Tables";
+    }
 }
