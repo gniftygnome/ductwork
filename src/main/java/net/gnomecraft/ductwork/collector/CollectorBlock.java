@@ -12,6 +12,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
@@ -215,17 +216,8 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof CollectorEntity) {
-                ItemScatterer.spawn(world, pos, (CollectorEntity)blockEntity);
-                world.updateComparators(pos,this);
-            }
-
-            super.onStateReplaced(state, world, pos, newState, moved);
-        }
+    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
+        ItemScatterer.onStateReplaced(state, world, pos);
     }
 
     @Override
@@ -242,7 +234,7 @@ public class CollectorBlock extends DuctworkBlock {
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         // INTAKE as int ID in bits 6, 7, 8
-        int shapeId = state.get(INTAKE).getId() << 6;
+        int shapeId = state.get(INTAKE).getIndex() << 6;
 
         // FACING bool packed in bits 0 - 5
         switch (state.get(FACING)) {
@@ -272,55 +264,55 @@ public class CollectorBlock extends DuctworkBlock {
 
         VoxelShape CENTER_SHAPE = Block.createCuboidShape(5.0D,  5.0D,  5.0D,  11.0D, 11.0D, 11.0D);
 
-        INTAKE_SHAPES[Direction.NORTH.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.NORTH.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D,  4.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D, 12.0D, 12.0D,  5.0D)
         );
-        INTAKE_SHAPES[Direction.EAST.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.EAST.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(12.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(11.0D, 4.0D, 4.0D, 12.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.SOUTH.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.SOUTH.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 12.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 11.0D, 12.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.WEST.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.WEST.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D,  4.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D,  5.0D, 12.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.DOWN.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.DOWN.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D,  4.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 4.0D, 4.0D, 12.0D,  5.0D, 12.0D)
         );
-        INTAKE_SHAPES[Direction.UP.getId()] = VoxelShapes.union(CENTER_SHAPE,
+        INTAKE_SHAPES[Direction.UP.getIndex()] = VoxelShapes.union(CENTER_SHAPE,
                 Block.createCuboidShape(0.0D, 12.0D, 0.0D, 16.0D, 16.0D, 16.0D),
                 Block.createCuboidShape(4.0D, 11.0D, 4.0D, 12.0D, 12.0D, 12.0D)
         );
 
-        ADJACENT_SHAPES[Direction.NORTH.getId()] =
+        ADJACENT_SHAPES[Direction.NORTH.getIndex()] =
                 Block.createCuboidShape(5.0D,  5.0D,  0.0D,  11.0D, 11.0D, 5.0D);
-        ADJACENT_SHAPES[Direction.EAST.getId()] =
+        ADJACENT_SHAPES[Direction.EAST.getIndex()] =
                 Block.createCuboidShape(11.0D, 5.0D,  5.0D,  16.0D, 11.0D, 11.0D);
-        ADJACENT_SHAPES[Direction.SOUTH.getId()] =
+        ADJACENT_SHAPES[Direction.SOUTH.getIndex()] =
                 Block.createCuboidShape(5.0D,  5.0D,  11.0D, 11.0D, 11.0D, 16.0D);
-        ADJACENT_SHAPES[Direction.WEST.getId()] =
+        ADJACENT_SHAPES[Direction.WEST.getIndex()] =
                 Block.createCuboidShape(0.0D,  5.0D,  5.0D,  5.0D,  11.0D, 11.0D);
-        ADJACENT_SHAPES[Direction.DOWN.getId()] =
+        ADJACENT_SHAPES[Direction.DOWN.getIndex()] =
                 Block.createCuboidShape(5.0D,  0.0D,  5.0D,  11.0D, 5.0D,  11.0D);
-        ADJACENT_SHAPES[Direction.UP.getId()] =
+        ADJACENT_SHAPES[Direction.UP.getIndex()] =
                 Block.createCuboidShape(5.0D,  11.0D, 5.0D,  11.0D, 16.0D, 11.0D);
 
         for (Direction intake: DIRECTIONS) {
-            int intakeId = intake.getId();
+            int intakeId = intake.getIndex();
             for (int adjacents = 0; adjacents < 64; ++adjacents) {
                 COLLECTOR_SHAPE_DICT[(intakeId << 6) | adjacents] = VoxelShapes.union(
                         INTAKE_SHAPES[intakeId],
-                        ((adjacents & 1)  != 0) ? ADJACENT_SHAPES[Direction.NORTH.getId()] : VoxelShapes.empty(),
-                        ((adjacents & 2)  != 0) ? ADJACENT_SHAPES[Direction.EAST.getId()]  : VoxelShapes.empty(),
-                        ((adjacents & 4)  != 0) ? ADJACENT_SHAPES[Direction.SOUTH.getId()] : VoxelShapes.empty(),
-                        ((adjacents & 8)  != 0) ? ADJACENT_SHAPES[Direction.WEST.getId()]  : VoxelShapes.empty(),
-                        ((adjacents & 16) != 0) ? ADJACENT_SHAPES[Direction.DOWN.getId()]  : VoxelShapes.empty(),
-                        ((adjacents & 32) != 0) ? ADJACENT_SHAPES[Direction.UP.getId()]    : VoxelShapes.empty()
+                        ((adjacents & 1)  != 0) ? ADJACENT_SHAPES[Direction.NORTH.getIndex()] : VoxelShapes.empty(),
+                        ((adjacents & 2)  != 0) ? ADJACENT_SHAPES[Direction.EAST.getIndex()]  : VoxelShapes.empty(),
+                        ((adjacents & 4)  != 0) ? ADJACENT_SHAPES[Direction.SOUTH.getIndex()] : VoxelShapes.empty(),
+                        ((adjacents & 8)  != 0) ? ADJACENT_SHAPES[Direction.WEST.getIndex()]  : VoxelShapes.empty(),
+                        ((adjacents & 16) != 0) ? ADJACENT_SHAPES[Direction.DOWN.getIndex()]  : VoxelShapes.empty(),
+                        ((adjacents & 32) != 0) ? ADJACENT_SHAPES[Direction.UP.getIndex()]    : VoxelShapes.empty()
                 );
             }
         }

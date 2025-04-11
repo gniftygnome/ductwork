@@ -12,6 +12,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
@@ -177,17 +178,8 @@ public class DamperBlock extends DuctworkBlock {
     }
 
     @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-
-            if (blockEntity instanceof DamperEntity) {
-                ItemScatterer.spawn(world, pos, (DamperEntity)blockEntity);
-                world.updateComparators(pos,this);
-            }
-
-            super.onStateReplaced(state, world, pos, newState, moved);
-        }
+    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
+        ItemScatterer.onStateReplaced(state, world, pos);
     }
 
     @Override

@@ -79,12 +79,12 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
 
         // Build a stable, sorted list of orientations for the use case we're iterating.
         ArrayList<Direction> orientations = new ArrayList<>();
-        Direction iterator = Direction.byId(0);
+        Direction iterator = Direction.byIndex(0);
         // Get the lowest-numbered off-axis direction.
         if (axis.test(iterator)) {
-            iterator = Direction.byId(iterator.getId() + 1);
+            iterator = Direction.byIndex(iterator.getIndex() + 1);
             if (axis.test(iterator)) {
-                iterator = Direction.byId(iterator.getId() + 1);
+                iterator = Direction.byIndex(iterator.getIndex() + 1);
             }
         }
         // Rotate clockwise around the axis.

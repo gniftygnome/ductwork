@@ -14,8 +14,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Iterator;
-
 public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Inventory {
     public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
     protected DefaultedList<ItemStack> inventory;
@@ -48,7 +46,7 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(tag, registryLookup);
 
-        this.transferCooldown = tag.getShort("TransferCooldown");
+        this.transferCooldown = tag.getShort("TransferCooldown").orElse((short) 0);
         inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
         Inventories.readNbt(tag, this.inventory, registryLookup);
     }
@@ -82,7 +80,7 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
      */
     @Override
     public boolean isEmpty() {
-        Iterator<ItemStack> invIterator = this.inventory.iterator();
+        java.util.Iterator<ItemStack> invIterator = this.inventory.iterator();
 
         ItemStack stack;
         do {
@@ -112,7 +110,7 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
      * @return True when no item could be added to the Inventory; False otherwise
      */
     public boolean isFull() {
-        Iterator<ItemStack> invIterator = this.inventory.iterator();
+        java.util.Iterator<ItemStack> invIterator = this.inventory.iterator();
 
         ItemStack stack;
         do {
