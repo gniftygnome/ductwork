@@ -216,11 +216,6 @@ public class CollectorBlock extends DuctworkBlock {
     }
 
     @Override
-    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
-        ItemScatterer.onStateReplaced(state, world, pos);
-    }
-
-    @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
         builder.add(FACING, INTAKE, NORTH, EAST, SOUTH, WEST, DOWN, UP, ENABLED);

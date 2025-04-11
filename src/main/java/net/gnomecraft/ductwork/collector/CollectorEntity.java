@@ -73,7 +73,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
         super.readNbt(tag, registryLookup);
 
         // Implement hack around Fabric's missing DFU API.
-        this.blockRev = tag.getShort("BlockRev").orElse((short) 0);
+        this.blockRev = tag.getShort("BlockRev", (short) 0);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, CollectorEntity entity) {

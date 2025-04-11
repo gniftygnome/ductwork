@@ -3,7 +3,9 @@ package net.gnomecraft.ductwork.duct;
 import com.mojang.serialization.MapCodec;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.base.DuctworkBlock;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -12,9 +14,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -158,11 +159,6 @@ public class DuctBlock extends DuctworkBlock {
         }
 
         return newState;
-    }
-
-    @Override
-    public void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
-        ItemScatterer.onStateReplaced(state, world, pos);
     }
 
     @Override

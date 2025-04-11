@@ -46,7 +46,7 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(tag, registryLookup);
 
-        this.transferCooldown = tag.getShort("TransferCooldown").orElse((short) 0);
+        this.transferCooldown = tag.getShort("TransferCooldown", (short) 0);
         inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
         Inventories.readNbt(tag, this.inventory, registryLookup);
     }
