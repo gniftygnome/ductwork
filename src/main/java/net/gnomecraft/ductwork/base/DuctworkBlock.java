@@ -1,21 +1,19 @@
 package net.gnomecraft.ductwork.base;
 
 import net.gnomecraft.ductwork.Ductwork;
+import net.gnomecraft.ductwork.compat.NeighborChecks;
 import net.minecraft.block.*;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
@@ -160,81 +158,9 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
             return state.with(BooleanProperty.of(direction.toString()), false);
         }
 
-        Block neighborBlock = neighbor.getBlock();
-
-        // Connect to Ductwork blocks.
-        if (neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Vanilla Hoppers (and some Hopper mods).
-        if (neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Vanilla Droppers.
-        if (neighborBlock instanceof DropperBlock && neighbor.get(DropperBlock.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        /*
-         * The remaining connections are to blocks provided by mods to which we support connecting.
-         * We use a rather circuitous method of testing these blocks because our mod must compile
-         * and run without these other mods being present.
-         */
-
-        // Connect to Basalt Crusher Gravel Mills.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("basalt-crusher", "gravel_mill")) &&
-                neighbor.contains(HorizontalFacingBlock.FACING) && neighbor.get(HorizontalFacingBlock.FACING).equals(direction)) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Ducts mod Ducts.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("ducts", "duct")) &&
-                neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(direction.getOpposite())) {
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to OmniHopper mod OmniHoppers.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("omnihopper", "omnihopper"))) {
-            EnumProperty<Direction> POINTY_BIT = DirectionProperty.of("pointy_bit", Direction.values());
-
-            if (neighbor.contains(POINTY_BIT) && neighbor.get(POINTY_BIT).equals(direction.getOpposite())) {
-                return state.with(BooleanProperty.of(direction.toString()), true);
-            }
-        }
-
-        // Connect to Flytre's Pipe mod Pipes
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "item_pipe")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("pipe", "fast_pipe"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and instead of duplicating a giant enum property, I just assume they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Simple Pipes mod Pipes.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_wooden_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_stone_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_clay_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_iron_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_gold_item")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(new Identifier("simple_pipes", "pipe_diamond_item"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        // Connect to Smart Pipes mod SmartPipes.
-        if (Registries.BLOCK.getId(neighborBlock).equals(new Identifier("smart_pipes", "smart_pipe"))) {
-
-            // Pipe mods are a generally a pain when it comes to figuring out whether they will deliver to our blocks.
-            // So I'm being lazy here and just assuming they will...
-            return state.with(BooleanProperty.of(direction.toString()), true);
-        }
-
-        return state.with(BooleanProperty.of(direction.toString()), false);
+        // Check neighbors for connections.
+        return state.with(BooleanProperty.of(direction.toString()),
+                NeighborChecks.checkNeighbor(neighbor, direction.getOpposite()));
     }
 
     @Override
