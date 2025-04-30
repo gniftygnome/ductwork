@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.gnomecraft.ductwork.collector.CollectorBlock;
 import net.gnomecraft.ductwork.collector.CollectorEntity;
 import net.gnomecraft.ductwork.collector.CollectorScreenHandler;
+import net.gnomecraft.ductwork.compat.NeighborChecks;
 import net.gnomecraft.ductwork.config.DuctworkConfig;
 import net.gnomecraft.ductwork.damper.DamperBlock;
 import net.gnomecraft.ductwork.damper.DamperEntity;
@@ -89,6 +90,7 @@ public class Ductwork implements ModInitializer {
 
         // Initialize modules
         DuctworkResourceConditions.init();
+        NeighborChecks.init();
 
         LOGGER.info("Ductwork makes the Dreamwork!");
     }
