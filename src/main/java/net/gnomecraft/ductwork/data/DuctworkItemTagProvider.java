@@ -14,7 +14,7 @@ public class DuctworkItemTagProvider extends FabricTagProvider.ItemTagProvider {
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup registries) {
-        this.getOrCreateTagBuilder(Ductwork.DUCT_ITEMS)
+        this.valueLookupBuilder(Ductwork.DUCT_ITEMS)
                 .add(Ductwork.COLLECTOR_ITEM)
                 .add(Ductwork.DAMPER_ITEM)
                 .add(Ductwork.DUCT_ITEM);

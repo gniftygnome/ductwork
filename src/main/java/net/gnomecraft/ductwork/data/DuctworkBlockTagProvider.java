@@ -15,12 +15,12 @@ public class DuctworkBlockTagProvider extends FabricTagProvider.BlockTagProvider
 
     @Override
     protected void configure(RegistryWrapper.WrapperLookup registries) {
-        this.getOrCreateTagBuilder(Ductwork.DUCT_BLOCKS)
+        this.valueLookupBuilder(Ductwork.DUCT_BLOCKS)
                 .add(Ductwork.COLLECTOR_BLOCK)
                 .add(Ductwork.DAMPER_BLOCK)
                 .add(Ductwork.DUCT_BLOCK);
 
-        this.getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE)
+        this.valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
                 .add(Ductwork.COLLECTOR_BLOCK)
                 .add(Ductwork.DAMPER_BLOCK)
                 .add(Ductwork.DUCT_BLOCK);

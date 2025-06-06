@@ -1,9 +1,9 @@
 package net.gnomecraft.ductwork.collector;
 
 import net.gnomecraft.ductwork.Ductwork;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
@@ -23,7 +23,7 @@ public class CollectorScreen extends HandledScreen<ScreenHandler> {
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         int k = (this.width - this.backgroundWidth) / 2;
         int l = (this.height - this.backgroundHeight) / 2;
-        context.drawTexture(RenderLayer::getGuiTextured, TEXTURE, k, l, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, k, l, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
     }
 
     @Override

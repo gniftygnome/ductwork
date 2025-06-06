@@ -17,10 +17,10 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -59,21 +59,21 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
     }
 
     @Override
-    public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void writeData(WriteView view) {
         // Implement hack around Fabric's missing DFU API.
         if (this.blockRev >= 0) {
-            tag.putShort("BlockRev", (short) this.blockRev);
+            view.putInt("BlockRev", this.blockRev);
         }
 
-        super.writeNbt(tag, registryLookup);
+        super.writeData(view);
     }
 
     @Override
-    public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(tag, registryLookup);
+    protected void readData(ReadView view) {
+        super.readData(view);
 
         // Implement hack around Fabric's missing DFU API.
-        this.blockRev = tag.getShort("BlockRev", (short) 0);
+        this.blockRev = view.getInt("BlockRev", 0);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, CollectorEntity entity) {

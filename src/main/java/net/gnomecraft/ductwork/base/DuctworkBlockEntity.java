@@ -8,8 +8,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -35,20 +35,20 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
     }
 
     @Override
-    public void writeNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        Inventories.writeNbt(tag, this.inventory, registryLookup);
-        tag.putShort("TransferCooldown", (short)this.transferCooldown);
+    protected void writeData(WriteView view) {
+        Inventories.writeData(view, this.inventory);
+        view.putInt("TransferCooldown", this.transferCooldown);
 
-        super.writeNbt(tag, registryLookup);
+        super.writeData(view);
     }
 
     @Override
-    public void readNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(tag, registryLookup);
+    protected void readData(ReadView view) {
+        super.readData(view);
 
-        this.transferCooldown = tag.getShort("TransferCooldown", (short) 0);
-        inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-        Inventories.readNbt(tag, this.inventory, registryLookup);
+        this.transferCooldown = view.getInt("TransferCooldown", 0);
+        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
+        Inventories.readData(view, this.inventory);
     }
 
     @Override
