@@ -67,7 +67,7 @@ public class DuctBlock extends DuctworkBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             ItemStack mainStack = player.getMainHandStack();
             Direction facing = state.get(FACING);
 

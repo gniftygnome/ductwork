@@ -12,7 +12,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
@@ -69,7 +68,7 @@ public class CollectorBlock extends DuctworkBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             ItemStack mainStack = player.getMainHandStack();
 
             if (player.isSneaking()) {

@@ -87,7 +87,7 @@ public class DamperBlock extends DuctworkBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             ItemStack mainStack = player.getMainHandStack();
 
             if (player.isSneaking()) {

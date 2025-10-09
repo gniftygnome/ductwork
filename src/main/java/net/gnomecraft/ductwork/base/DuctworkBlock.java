@@ -214,7 +214,7 @@ public abstract class DuctworkBlock extends BlockWithEntity implements Waterlogg
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
     }
 
