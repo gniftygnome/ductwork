@@ -1,7 +1,7 @@
 package net.gnomecraft.ductwork.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.core.HolderLookup;
 import org.jspecify.annotations.NullMarked;
@@ -9,8 +9,8 @@ import org.jspecify.annotations.NullMarked;
 import java.util.concurrent.CompletableFuture;
 
 @NullMarked
-public class DuctworkBlockLootTableProvider extends FabricBlockLootTableProvider {
-    protected DuctworkBlockLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+public class DuctworkBlockLootTableProvider extends FabricBlockLootSubProvider {
+    protected DuctworkBlockLootTableProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 

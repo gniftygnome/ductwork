@@ -3,7 +3,7 @@ package net.gnomecraft.ductwork;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.gnomecraft.ductwork.collector.CollectorBlock;
 import net.gnomecraft.ductwork.collector.CollectorEntity;
@@ -74,8 +74,8 @@ public class Ductwork implements ModInitializer {
         // Register the Ductwork config
         AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS)
-                .register(content -> content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM));
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS)
+                .register(content -> content.insertAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM));
 
         // Initialize modules
         DuctworkResourceConditions.init();

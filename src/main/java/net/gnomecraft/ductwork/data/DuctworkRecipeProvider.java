@@ -1,6 +1,6 @@
 package net.gnomecraft.ductwork.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 
 @NullMarked
 public class DuctworkRecipeProvider extends FabricRecipeProvider {
-    public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+    public DuctworkRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 

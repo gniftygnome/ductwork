@@ -1,7 +1,7 @@
 package net.gnomecraft.ductwork.data;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -11,7 +11,7 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class DuctworkModelProvider extends FabricModelProvider {
-    public DuctworkModelProvider(FabricDataOutput output) {
+    public DuctworkModelProvider(FabricPackOutput output) {
         super(output);
     }
 
@@ -20,7 +20,6 @@ public class DuctworkModelProvider extends FabricModelProvider {
         this.registerBlockItemModel(generator, Ductwork.COLLECTOR_BLOCK);
         this.registerBlockItemModel(generator, Ductwork.DUCT_BLOCK);
     }
-
 
     @Override
     public void generateItemModels(ItemModelGenerators generator) {

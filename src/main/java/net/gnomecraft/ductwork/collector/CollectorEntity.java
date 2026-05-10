@@ -1,6 +1,6 @@
 package net.gnomecraft.ductwork.collector;
 
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -177,7 +177,7 @@ public class CollectorEntity extends DuctworkBlockEntity implements Hopper {
         if (sourceStorage == null) {
             Container sourceInventory =  HopperBlockEntity.getContainerAt(world, sourcePos);
             if (sourceInventory != null) {
-                sourceStorage = InventoryStorage.of(sourceInventory, intake.getOpposite());
+                sourceStorage = ContainerStorage.of(sourceInventory, intake.getOpposite());
             }
         }
 

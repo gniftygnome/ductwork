@@ -1,7 +1,7 @@
 package net.gnomecraft.ductwork.data;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.gnomecraft.ductwork.Ductwork;
 import net.minecraft.core.HolderLookup;
 import org.jspecify.annotations.NullMarked;
@@ -9,8 +9,8 @@ import org.jspecify.annotations.NullMarked;
 import java.util.concurrent.CompletableFuture;
 
 @NullMarked
-public class DuctworkItemTagProvider extends FabricTagProvider.ItemTagProvider {
-    public DuctworkItemTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+public class DuctworkItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
+    public DuctworkItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
