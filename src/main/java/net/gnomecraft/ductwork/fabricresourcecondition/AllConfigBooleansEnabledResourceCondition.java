@@ -5,12 +5,14 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.registry.RegistryOps;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.RegistryOps;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-record AllConfigBooleansEnabledResourceCondition(List<String> configBooleans) implements ResourceCondition {
+@NullMarked
+public record AllConfigBooleansEnabledResourceCondition(List<String> configBooleans) implements ResourceCondition {
     public static final MapCodec<AllConfigBooleansEnabledResourceCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Codec.STRING.listOf().fieldOf("values").forGetter(AllConfigBooleansEnabledResourceCondition::configBooleans)
 	).apply(instance, AllConfigBooleansEnabledResourceCondition::new));
@@ -21,7 +23,7 @@ record AllConfigBooleansEnabledResourceCondition(List<String> configBooleans) im
 	}
 
 	@Override
-	public boolean test(@Nullable RegistryOps.RegistryInfoGetter registryInfo) {
+	public boolean test(RegistryOps.@Nullable RegistryInfoLookup registryInfo) {
 		return DuctworkResourceConditions.configBooleansEnabled(this.configBooleans, true);
 	}
 }

@@ -2,13 +2,15 @@ package net.gnomecraft.ductwork.compat;
 
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.base.DuctworkBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Consumer;
 
+@NullMarked
 public class DuctworkNeighborChecks extends NeighborChecks {
     public DuctworkNeighborChecks() {
         super("ductwork");
@@ -21,6 +23,6 @@ public class DuctworkNeighborChecks extends NeighborChecks {
 
     // Connect to Ductwork blocks.
     private boolean ductworkings(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return neighbor.isIn(Ductwork.DUCT_BLOCKS) && neighbor.get(DuctworkBlock.FACING).equals(facing);
+        return neighbor.is(Ductwork.DUCT_BLOCKS) && neighbor.getValue(DuctworkBlock.FACING).equals(facing);
     }
 }

@@ -17,75 +17,64 @@ import net.gnomecraft.ductwork.duct.DuctBlock;
 import net.gnomecraft.ductwork.duct.DuctEntity;
 import net.gnomecraft.ductwork.duct.DuctScreenHandler;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.MapColor;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NullMarked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NullMarked
 public class Ductwork implements ModInitializer {
     public static final String MOD_ID = "ductwork";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public static final Identifier COLLECTOR_BLOCK_ID = Identifier.of(MOD_ID, "collector");
-    public static final Identifier DAMPER_BLOCK_ID = Identifier.of(MOD_ID, "damper");
-    public static final Identifier DUCT_BLOCK_ID = Identifier.of(MOD_ID, "duct");
+    public static final Identifier COLLECTOR_BLOCK_ID = Identifier.fromNamespaceAndPath(MOD_ID, "collector");
+    public static final Identifier DAMPER_BLOCK_ID = Identifier.fromNamespaceAndPath(MOD_ID, "damper");
+    public static final Identifier DUCT_BLOCK_ID = Identifier.fromNamespaceAndPath(MOD_ID, "duct");
 
-    public static final TagKey<Block> DUCT_BLOCKS = TagKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, "ducts"));
-    public static final TagKey<Item> DUCT_ITEMS = TagKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, "ducts"));
-    public static final TagKey<Item> WRENCHES = TagKey.of(RegistryKeys.ITEM, Identifier.of("c", "wrenches"));
+    public static final TagKey<Block> DUCT_BLOCKS = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "ducts"));
+    public static final TagKey<Item> DUCT_ITEMS = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "ducts"));
+    public static final TagKey<Item> WRENCHES = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "wrenches"));
 
-    public static Block COLLECTOR_BLOCK;
-    public static BlockItem COLLECTOR_ITEM;
-    public static BlockEntityType<CollectorEntity> COLLECTOR_ENTITY;
+    // Collector block
+    public static final Block COLLECTOR_BLOCK = Registry.register(BuiltInRegistries.BLOCK, COLLECTOR_BLOCK_ID, new CollectorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).mapColor(MapColor.METAL).setId(ResourceKey.create(Registries.BLOCK, COLLECTOR_BLOCK_ID))));
+    public static final BlockItem COLLECTOR_ITEM = Registry.register(BuiltInRegistries.ITEM, COLLECTOR_BLOCK_ID, new BlockItem(COLLECTOR_BLOCK, new net.minecraft.world.item.Item.Properties().setId(ResourceKey.create(Registries.ITEM, COLLECTOR_BLOCK_ID)).useBlockDescriptionPrefix()));
+    public static final BlockEntityType<CollectorEntity> COLLECTOR_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, COLLECTOR_BLOCK_ID, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build());
+    public static final MenuType<CollectorScreenHandler> COLLECTOR_SCREEN_HANDLER = Registry.register(BuiltInRegistries.MENU, COLLECTOR_BLOCK_ID, new MenuType<>(CollectorScreenHandler::new, FeatureFlagSet.of()));
 
-    public static Block DAMPER_BLOCK;
-    public static BlockItem DAMPER_ITEM;
-    public static BlockEntityType<DamperEntity> DAMPER_ENTITY;
+    // Damper block
+    public static final Block DAMPER_BLOCK = Registry.register(BuiltInRegistries.BLOCK, DAMPER_BLOCK_ID, new DamperBlock(BlockBehaviour.Properties.ofFullCopy(COLLECTOR_BLOCK).setId(ResourceKey.create(Registries.BLOCK, DAMPER_BLOCK_ID))));
+    public static final BlockItem DAMPER_ITEM = Registry.register(BuiltInRegistries.ITEM, DAMPER_BLOCK_ID, new BlockItem(DAMPER_BLOCK, new net.minecraft.world.item.Item.Properties().setId(ResourceKey.create(Registries.ITEM, DAMPER_BLOCK_ID)).useBlockDescriptionPrefix()));
+    public static final BlockEntityType<DamperEntity> DAMPER_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, DAMPER_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build());
+    public static final MenuType<DamperScreenHandler> DAMPER_SCREEN_HANDLER = Registry.register(BuiltInRegistries.MENU, DAMPER_BLOCK_ID, new MenuType<>(DamperScreenHandler::new, FeatureFlagSet.of()));
 
-    public static Block DUCT_BLOCK;
-    public static BlockItem DUCT_ITEM;
-    public static BlockEntityType<DuctEntity> DUCT_ENTITY;
-
-    public static ScreenHandlerType<CollectorScreenHandler> COLLECTOR_SCREEN_HANDLER;
-    public static ScreenHandlerType<DamperScreenHandler> DAMPER_SCREEN_HANDLER;
-    public static ScreenHandlerType<DuctScreenHandler> DUCT_SCREEN_HANDLER;
+    // Duct block
+    public static final Block DUCT_BLOCK = Registry.register(BuiltInRegistries.BLOCK, DUCT_BLOCK_ID, new DuctBlock(BlockBehaviour.Properties.ofFullCopy(COLLECTOR_BLOCK).setId(ResourceKey.create(Registries.BLOCK, DUCT_BLOCK_ID))));
+    public static final BlockItem DUCT_ITEM = Registry.register(BuiltInRegistries.ITEM, DUCT_BLOCK_ID, new BlockItem(DUCT_BLOCK, new net.minecraft.world.item.Item.Properties().setId(ResourceKey.create(Registries.ITEM, DUCT_BLOCK_ID)).useBlockDescriptionPrefix()));
+    public static final BlockEntityType<DuctEntity> DUCT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, DUCT_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build());
+    public static final MenuType<DuctScreenHandler> DUCT_SCREEN_HANDLER = Registry.register(BuiltInRegistries.MENU, DUCT_BLOCK_ID, new MenuType<>(DuctScreenHandler::new, FeatureFlagSet.of()));
 
     @Override
     public void onInitialize() {
         // Register the Ductwork config
         AutoConfig.register(DuctworkConfig.class, Toml4jConfigSerializer::new);
 
-        // Collector block
-        COLLECTOR_BLOCK = Registry.register(Registries.BLOCK, COLLECTOR_BLOCK_ID, new CollectorBlock(AbstractBlock.Settings.copy(Blocks.HOPPER).mapColor(MapColor.IRON_GRAY).registryKey(RegistryKey.of(RegistryKeys.BLOCK, COLLECTOR_BLOCK_ID))));
-        COLLECTOR_ITEM = Registry.register(Registries.ITEM, COLLECTOR_BLOCK_ID, new BlockItem(COLLECTOR_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, COLLECTOR_BLOCK_ID)).useBlockPrefixedTranslationKey()));
-        COLLECTOR_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, COLLECTOR_BLOCK_ID, FabricBlockEntityTypeBuilder.create(CollectorEntity::new, COLLECTOR_BLOCK).build());
-        COLLECTOR_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, COLLECTOR_BLOCK_ID, new ScreenHandlerType<>(CollectorScreenHandler::new, FeatureSet.empty()));
-
-        // Damper block
-        DAMPER_BLOCK = Registry.register(Registries.BLOCK, DAMPER_BLOCK_ID, new DamperBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, DAMPER_BLOCK_ID))));
-        DAMPER_ITEM = Registry.register(Registries.ITEM, DAMPER_BLOCK_ID, new BlockItem(DAMPER_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DAMPER_BLOCK_ID)).useBlockPrefixedTranslationKey()));
-        DAMPER_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DAMPER_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DamperEntity::new, DAMPER_BLOCK).build());
-        DAMPER_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DAMPER_BLOCK_ID, new ScreenHandlerType<>(DamperScreenHandler::new, FeatureSet.empty()));
-
-        // Duct block
-        DUCT_BLOCK = Registry.register(Registries.BLOCK, DUCT_BLOCK_ID, new DuctBlock(AbstractBlock.Settings.copy(COLLECTOR_BLOCK).registryKey(RegistryKey.of(RegistryKeys.BLOCK, DUCT_BLOCK_ID))));
-        DUCT_ITEM = Registry.register(Registries.ITEM, DUCT_BLOCK_ID, new BlockItem(DUCT_BLOCK, new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, DUCT_BLOCK_ID)).useBlockPrefixedTranslationKey()));
-        DUCT_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DUCT_BLOCK_ID, FabricBlockEntityTypeBuilder.create(DuctEntity::new, DUCT_BLOCK).build());
-        DUCT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, DUCT_BLOCK_ID, new ScreenHandlerType<>(DuctScreenHandler::new, FeatureSet.empty()));
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE)
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.REDSTONE_BLOCKS)
                 .register(content -> content.addAfter(Items.HOPPER, DUCT_ITEM, DAMPER_ITEM, COLLECTOR_ITEM));
 
         // Initialize modules

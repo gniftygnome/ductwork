@@ -1,14 +1,16 @@
 package net.gnomecraft.ductwork.compat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Consumer;
 
+@NullMarked
 public class BasaltCrusherNeighborChecks extends NeighborChecks {
     public BasaltCrusherNeighborChecks() {
         super("basalt-crusher");
@@ -21,8 +23,8 @@ public class BasaltCrusherNeighborChecks extends NeighborChecks {
 
     // Connect to Basalt Crusher Gravel Mills.
     private boolean gravelMill(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return Registries.BLOCK.getId(neighborBlock).equals(id("gravel_mill")) &&
-                neighbor.contains(HorizontalFacingBlock.FACING) &&
-                neighbor.get(HorizontalFacingBlock.FACING).equals(facing.getOpposite());
+        return BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("gravel_mill")) &&
+                neighbor.hasProperty(HorizontalDirectionalBlock.FACING) &&
+                neighbor.getValue(HorizontalDirectionalBlock.FACING).equals(facing.getOpposite());
     }
 }

@@ -1,20 +1,22 @@
 package net.gnomecraft.ductwork.compat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Locale;
 import java.util.function.Consumer;
 
+@NullMarked
 public class CreateNeighborChecks extends NeighborChecks {
-    private static final BooleanProperty EXTRACTING = BooleanProperty.of("extracting");
+    private static final BooleanProperty EXTRACTING = BooleanProperty.create("extracting");
 
     public CreateNeighborChecks() {
         super("create");
@@ -30,13 +32,13 @@ public class CreateNeighborChecks extends NeighborChecks {
 
     // Connect to Create's Mechanical Crafters (really ugly *sigh*)
     private boolean mechanicalCrafter(BlockState neighbor, Block neighborBlock, Direction facing) {
-        if (Registries.BLOCK.getId(neighborBlock).equals(id("mechanical_crafter")) &&
-                neighbor.contains(Properties.HORIZONTAL_FACING)) {
+        if (BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("mechanical_crafter")) &&
+                neighbor.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
 
             for (Property<?> property : neighbor.getProperties()) {
                 if ("pointing".equals(property.getName())) {
-                    if (CreatePointing.valueOf(neighbor.get(property).toString())
-                            .getCombinedDirection(neighbor.get(Properties.HORIZONTAL_FACING))
+                    if (CreatePointing.valueOf(neighbor.getValue(property).toString())
+                            .getCombinedDirection(neighbor.getValue(BlockStateProperties.HORIZONTAL_FACING))
                             .equals(facing)) {
                         return true;
                     }
@@ -52,25 +54,25 @@ public class CreateNeighborChecks extends NeighborChecks {
     // Can connect from below when exporting down.
     private boolean funnels(BlockState neighbor, Block neighborBlock, Direction facing) {
         return (
-                Registries.BLOCK.getId(neighborBlock).equals(id("andesite_funnel")) ||
-                Registries.BLOCK.getId(neighborBlock).equals(id("brass_funnel"))
+                BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("andesite_funnel")) ||
+                BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("brass_funnel"))
             ) && (
-                neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(Direction.UP) &&
-                neighbor.contains(EXTRACTING) && neighbor.get(EXTRACTING).equals(false) &&
+                neighbor.hasProperty(BlockStateProperties.FACING) && neighbor.getValue(BlockStateProperties.FACING).equals(Direction.UP) &&
+                neighbor.hasProperty(EXTRACTING) && neighbor.getValue(EXTRACTING).equals(false) &&
                 facing.equals(Direction.DOWN)
         );
     }
 
     // Can connect from below unless the chute connects sideways.
     private boolean chute(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return Registries.BLOCK.getId(neighborBlock).equals(id("chute")) &&
-                neighbor.contains(Properties.HOPPER_FACING) && neighbor.get(Properties.HOPPER_FACING).equals(Direction.DOWN) &&
+        return BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("chute")) &&
+                neighbor.hasProperty(BlockStateProperties.FACING_HOPPER) && neighbor.getValue(BlockStateProperties.FACING_HOPPER).equals(Direction.DOWN) &&
                 facing.equals(Direction.DOWN);
     }
 
     // Can connect from below.
     private boolean smartChute(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return Registries.BLOCK.getId(neighborBlock).equals(id("smart_chute")) &&
+        return BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("smart_chute")) &&
                 facing.equals(Direction.DOWN);
     }
 
@@ -80,7 +82,7 @@ public class CreateNeighborChecks extends NeighborChecks {
      * (Except ... it's not equivalent ... for some reason I had to swap LEFT and RIGHT (??!!))
      */
     @SuppressWarnings("unused")
-    public enum CreatePointing implements StringIdentifiable {
+    public enum CreatePointing implements StringRepresentable {
         UP(0), RIGHT(90), DOWN(180), LEFT(270);
 
         private final int xRotation;
@@ -90,7 +92,7 @@ public class CreateNeighborChecks extends NeighborChecks {
         }
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return name().toLowerCase(Locale.ROOT);
         }
 
@@ -101,10 +103,10 @@ public class CreateNeighborChecks extends NeighborChecks {
         public Direction getCombinedDirection(Direction direction) {
             Direction.Axis axis = direction.getAxis();
             Direction top = axis == Direction.Axis.Y ? Direction.SOUTH : Direction.UP;
-            int rotations = direction.getDirection() == Direction.AxisDirection.NEGATIVE ? 4 - ordinal() : ordinal();
+            int rotations = direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? 4 - ordinal() : ordinal();
 
             for (int i = 0; i < rotations; ++i) {
-                top = top.rotateClockwise(axis);
+                top = top.getClockWise(axis);
             }
 
             return top;

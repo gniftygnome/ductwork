@@ -3,14 +3,17 @@ package net.gnomecraft.ductwork.fabricresourcecondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
+@NullMarked
 public final class DuctworkResourceConditions {
     private DuctworkResourceConditions() {
+        //noinspection UnnecessaryReturnStatement
+        return;
     }
 
     /**
@@ -44,7 +47,7 @@ public final class DuctworkResourceConditions {
     }
 
     @Nullable
-    private static Object getConfigFieldByName(@NotNull Object config, @NotNull String name) {
+    private static Object getConfigFieldByName(Object config, String name) {
         try {
             Field field = config.getClass().getDeclaredField(name);
             field.setAccessible(true);
@@ -54,7 +57,7 @@ public final class DuctworkResourceConditions {
         }
     }
 
-    private static boolean getConfigBooleanByName(@NotNull Object config, @NotNull String name) {
+    private static boolean getConfigBooleanByName(Object config, String name) {
         Object value = getConfigFieldByName(config, name);
         if (value instanceof Boolean) {
             return (boolean) value;

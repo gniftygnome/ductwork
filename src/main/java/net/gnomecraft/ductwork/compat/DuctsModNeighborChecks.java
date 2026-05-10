@@ -1,14 +1,16 @@
 package net.gnomecraft.ductwork.compat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.Registries;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Consumer;
 
+@NullMarked
 public class DuctsModNeighborChecks extends NeighborChecks {
     public DuctsModNeighborChecks() {
         super("ducts");
@@ -21,7 +23,7 @@ public class DuctsModNeighborChecks extends NeighborChecks {
 
     // Connect to Ducts mod Ducts.
     private boolean duct(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return Registries.BLOCK.getId(neighborBlock).equals(id("duct")) &&
-                neighbor.contains(Properties.FACING) && neighbor.get(Properties.FACING).equals(facing);
+        return BuiltInRegistries.BLOCK.getKey(neighborBlock).equals(id("duct")) &&
+                neighbor.hasProperty(BlockStateProperties.FACING) && neighbor.getValue(BlockStateProperties.FACING).equals(facing);
     }
 }

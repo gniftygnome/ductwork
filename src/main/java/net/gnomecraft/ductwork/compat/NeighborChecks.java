@@ -1,16 +1,18 @@
 package net.gnomecraft.ductwork.compat;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+@NullMarked
 public abstract class NeighborChecks {
     private static final Collection<TriFunction<BlockState, Block, Direction, Boolean>> NEIGHBOR_CHECKS = new ArrayList<>(16);
     private final String modId;
@@ -28,7 +30,7 @@ public abstract class NeighborChecks {
     protected abstract void registerChecks(Consumer<TriFunction<BlockState, Block, Direction, Boolean>> registry);
 
     protected Identifier id(String path) {
-        return Identifier.of(this.modId, path);
+        return Identifier.fromNamespaceAndPath(this.modId, path);
     }
 
 

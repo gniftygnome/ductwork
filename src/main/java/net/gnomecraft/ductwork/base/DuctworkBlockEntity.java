@@ -1,73 +1,81 @@
 package net.gnomecraft.ductwork.base;
 
 import net.gnomecraft.cooldowncoordinator.CoordinatedCooldown;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import org.jspecify.annotations.NullMarked;
 
-public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity implements CoordinatedCooldown, Inventory {
+@NullMarked
+public abstract class DuctworkBlockEntity extends BaseContainerBlockEntity implements CoordinatedCooldown, Container {
     public final static int defaultCooldown = 8;  // 4 redstone ticks, just like vanilla
-    protected DefaultedList<ItemStack> inventory;
+    protected NonNullList<ItemStack> inventory;
     protected long lastTickTime;
     protected int transferCooldown;
 
-    protected DuctworkBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
+    protected DuctworkBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState, int inventorySize) {
         super(blockEntityType, blockPos, blockState);
+
+        if (inventorySize < 1 || inventorySize > 1024) {
+            throw new IllegalArgumentException("Inventory size must be between 1 and 1024 inclusive.");
+        }
+
+        this.inventory = NonNullList.withSize(inventorySize, ItemStack.EMPTY);
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable(getCachedState().getBlock().getTranslationKey());
+    public Component getDisplayName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    public Text getContainerName() {
-        return Text.translatable(getCachedState().getBlock().getTranslationKey());
+    public Component getDefaultName() {
+        return Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Override
-    protected void writeData(WriteView view) {
-        Inventories.writeData(view, this.inventory);
+    protected void saveAdditional(ValueOutput view) {
+        ContainerHelper.saveAllItems(view, this.inventory);
         view.putInt("TransferCooldown", this.transferCooldown);
 
-        super.writeData(view);
+        super.saveAdditional(view);
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        this.transferCooldown = view.getInt("TransferCooldown", 0);
-        this.inventory = DefaultedList.ofSize(this.size(), ItemStack.EMPTY);
-        Inventories.readData(view, this.inventory);
+        this.transferCooldown = view.getIntOr("TransferCooldown", 0);
+        this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(view, this.inventory);
     }
 
     @Override
     public void notifyCooldown() {
-        if (world == null) {
+        if (level == null) {
             return;
         }
 
-        if (this.lastTickTime >= world.getTime()) {
+        if (this.lastTickTime >= level.getGameTime()) {
             this.transferCooldown = DuctworkBlockEntity.defaultCooldown - 1;
         } else {
             this.transferCooldown = DuctworkBlockEntity.defaultCooldown;
         }
 
-        this.markDirty();
+        this.setChanged();
     }
 
     @Override
-    public int size() {
+    public int getContainerSize() {
         return this.inventory.size();
     }
 
@@ -98,11 +106,11 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
      * Complement for the standard Inventory method isEmpty().  This method can be used to
      * short-circuit when considering an insertion because a true result guarantees the
      * insertion cannot possibly succeed.
-     *
+     * <p/>
      * This method does not consider nested Inventories because Minecraft does not insert
      * into nested Inventories.  The design may be revised if the Fabric transfer API gains
      * support for nested Inventories.
-     *
+     * <p/>
      * In practice, isFull() is most useful when the target Inventory is relatively likely
      * to be full.  The exception is when capturing items from the World, which involves
      * computationally expensive iterations and vector mathematics.
@@ -119,57 +127,57 @@ public abstract class DuctworkBlockEntity extends LockableContainerBlockEntity i
             }
 
             stack = invIterator.next();
-        } while (!stack.isEmpty() && stack.getCount() >= stack.getMaxCount());
+        } while (!stack.isEmpty() && stack.getCount() >= stack.getMaxStackSize());
 
         return false;
     }
 
     @Override
-    public ItemStack getStack(int index) {
+    public ItemStack getItem(int index) {
         return this.inventory.get(index);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return Inventories.splitStack(this.inventory, slot, amount);
+    public ItemStack removeItem(int slot, int amount) {
+        return ContainerHelper.removeItem(this.inventory, slot, amount);
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
-        return Inventories.removeStack(this.inventory, slot);
+    public ItemStack removeItemNoUpdate(int slot) {
+        return ContainerHelper.takeItem(this.inventory, slot);
     }
 
     @Override
-    public void setStack(int index, ItemStack stack) {
+    public void setItem(int index, ItemStack stack) {
         this.inventory.set(index, stack);
-        if (stack.getCount() > this.getMaxCountPerStack()) {
-            stack.setCount(this.getMaxCountPerStack());
+        if (stack.getCount() > this.getMaxStackSize()) {
+            stack.setCount(this.getMaxStackSize());
         }
 
-        this.markDirty();
+        this.setChanged();
     }
 
     @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        if (this.world == null || this.world.getBlockEntity(this.pos) != this) {
+    public boolean stillValid(Player player) {
+        if (this.level == null || this.level.getBlockEntity(this.worldPosition) != this) {
             return false;
         } else {
-            return player.squaredDistanceTo((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
+            return player.distanceToSqr((double) this.worldPosition.getX() + 0.5D, (double) this.worldPosition.getY() + 0.5D, (double) this.worldPosition.getZ() + 0.5D) <= 64.0D;
         }
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         this.inventory.clear();
     }
 
     @Override
-    protected DefaultedList<ItemStack> getHeldStacks() {
+    protected NonNullList<ItemStack> getItems() {
         return this.inventory;
     }
 
     @Override
-    protected void setHeldStacks(DefaultedList<ItemStack> inventory) {
+    protected void setItems(NonNullList<ItemStack> inventory) {
         if (inventory.size() != this.inventory.size()) {
             throw new IllegalArgumentException("setHeldStacks called with wrong-size inventory");
         }

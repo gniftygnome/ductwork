@@ -1,14 +1,16 @@
 package net.gnomecraft.ductwork.compat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.DropperBlock;
-import net.minecraft.block.HopperBlock;
-import net.minecraft.util.math.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.DropperBlock;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.core.Direction;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.function.Consumer;
 
+@NullMarked
 public class VanillaNeighborChecks extends NeighborChecks {
     public VanillaNeighborChecks() {
         super("minecraft");
@@ -22,11 +24,11 @@ public class VanillaNeighborChecks extends NeighborChecks {
 
     // Connect to Vanilla Hoppers (and some Hopper mods).
     private boolean hoppers(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return neighbor.contains(HopperBlock.FACING) && neighbor.get(HopperBlock.FACING).equals(facing);
+        return neighbor.hasProperty(HopperBlock.FACING) && neighbor.getValue(HopperBlock.FACING).equals(facing);
     }
 
     // Connect to Vanilla Droppers.
     private boolean droppers(BlockState neighbor, Block neighborBlock, Direction facing) {
-        return neighborBlock instanceof DropperBlock && neighbor.get(DropperBlock.FACING).equals(facing);
+        return neighborBlock instanceof DropperBlock && neighbor.getValue(DropperBlock.FACING).equals(facing);
     }
 }

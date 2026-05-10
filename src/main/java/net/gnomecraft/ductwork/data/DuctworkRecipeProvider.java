@@ -5,93 +5,95 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.gnomecraft.ductwork.Ductwork;
 import net.gnomecraft.ductwork.fabricresourcecondition.DuctworkResourceConditions;
-import net.minecraft.advancement.criterion.InventoryChangedCriterion;
-import net.minecraft.data.recipe.RecipeExporter;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.util.Identifier;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.world.item.Items;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.concurrent.CompletableFuture;
 
+@NullMarked
 public class DuctworkRecipeProvider extends FabricRecipeProvider {
-    public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public DuctworkRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    public RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup registryLookup, RecipeExporter exporter) {
-        return new RecipeGenerator(registryLookup, exporter) {
+    public RecipeProvider createRecipeProvider(HolderLookup.Provider registryLookup, RecipeOutput exporter) {
+        return new RecipeProvider(registryLookup, exporter) {
             @Override
-            public void generate() {
-                RecipeExporter cheaperExporter = withConditions(exporter, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
-                RecipeExporter fullPriceExporter = withConditions(exporter, ResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
+            public void buildRecipes() {
+                RecipeOutput cheaperExporter = withConditions(output, DuctworkResourceConditions.allConfigBooleansEnabled("cheaper"));
+                RecipeOutput fullPriceExporter = withConditions(output, ResourceConditions.not(DuctworkResourceConditions.anyConfigBooleansEnabled("cheaper")));
 
                 // Cheaper recipes.
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 4)
+                shaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 4)
                         .pattern("Iwi")
                         .pattern("Irw")
                         .pattern("Iwi")
-                        .input('I', Items.IRON_INGOT)
-                        .input('i', Items.IRON_NUGGET)
-                        .input('r', Items.REDSTONE)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                        .offerTo(cheaperExporter, "collector-cheaper");
+                        .define('I', Items.IRON_INGOT)
+                        .define('i', Items.IRON_NUGGET)
+                        .define('r', Items.REDSTONE)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron_and_redstone", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT, Items.REDSTONE))
+                        .save(cheaperExporter, "collector-cheaper");
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
+                shaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
                         .pattern("iwi")
                         .pattern("wrw")
                         .pattern("iwi")
-                        .input('i', Items.IRON_NUGGET)
-                        .input('r', Items.REDSTONE)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                        .offerTo(cheaperExporter, "damper-cheaper");
+                        .define('i', Items.IRON_NUGGET)
+                        .define('r', Items.REDSTONE)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron_and_redstone", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT, Items.REDSTONE))
+                        .save(cheaperExporter, "damper-cheaper");
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
+                shaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
                         .pattern("iwi")
                         .pattern("w w")
                         .pattern("iwi")
-                        .input('i', Items.IRON_NUGGET)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
-                        .offerTo(cheaperExporter, "duct-cheaper");
+                        .define('i', Items.IRON_NUGGET)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
+                        .save(cheaperExporter, "duct-cheaper");
 
 
                 // Full price recipes.
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 1)
+                shaped(RecipeCategory.REDSTONE, Ductwork.COLLECTOR_ITEM, 1)
                         .pattern("iwi")
                         .pattern("irw")
                         .pattern("iwi")
-                        .input('i', Items.IRON_INGOT)
-                        .input('r', Items.REDSTONE)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                        .offerTo(fullPriceExporter, "collector");
+                        .define('i', Items.IRON_INGOT)
+                        .define('r', Items.REDSTONE)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron_and_redstone", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT, Items.REDSTONE))
+                        .save(fullPriceExporter, "collector");
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
+                shaped(RecipeCategory.REDSTONE, Ductwork.DAMPER_ITEM, 4)
                         .pattern("iwi")
                         .pattern("wrw")
                         .pattern("iwi")
-                        .input('i', Items.IRON_INGOT)
-                        .input('r', Items.REDSTONE)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron_and_redstone", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT, Items.REDSTONE))
-                        .offerTo(fullPriceExporter, "damper");
+                        .define('i', Items.IRON_INGOT)
+                        .define('r', Items.REDSTONE)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron_and_redstone", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT, Items.REDSTONE))
+                        .save(fullPriceExporter, "damper");
 
-                createShaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
+                shaped(RecipeCategory.REDSTONE, Ductwork.DUCT_ITEM, 4)
                         .pattern("iwi")
                         .pattern("w w")
                         .pattern("iwi")
-                        .input('i', Items.IRON_INGOT)
-                        .input('w', ItemTags.PLANKS)
-                        .criterion("has_iron", InventoryChangedCriterion.Conditions.items(Items.IRON_INGOT))
-                        .offerTo(fullPriceExporter, "duct");
+                        .define('i', Items.IRON_INGOT)
+                        .define('w', ItemTags.PLANKS)
+                        .unlockedBy("has_iron", InventoryChangeTrigger.TriggerInstance.hasItems(Items.IRON_INGOT))
+                        .save(fullPriceExporter, "duct");
             }
         };
     }
@@ -103,6 +105,6 @@ public class DuctworkRecipeProvider extends FabricRecipeProvider {
 
     @Override
     protected Identifier getRecipeIdentifier(Identifier identifier) {
-        return Identifier.of(Ductwork.MOD_ID, identifier.getPath());
+        return Identifier.fromNamespaceAndPath(Ductwork.MOD_ID, identifier.getPath());
     }
 }

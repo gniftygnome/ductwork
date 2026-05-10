@@ -1,36 +1,38 @@
 package net.gnomecraft.ductwork.duct;
 
 import net.gnomecraft.ductwork.Ductwork;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NullMarked;
 
-public class DuctScreen extends HandledScreen<ScreenHandler> {
-    private static final Identifier TEXTURE = Identifier.of(Ductwork.MOD_ID, "textures/gui/container/duct_screen.png");
+@NullMarked
+public class DuctScreen extends AbstractContainerScreen<AbstractContainerMenu> {
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Ductwork.MOD_ID, "textures/gui/container/duct_screen.png");
 
-    public DuctScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
+    public DuctScreen(AbstractContainerMenu handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
 
-        this.backgroundHeight = 133;
-        this.playerInventoryTitleY = this.backgroundHeight - 94;
+        this.imageHeight = 133;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-        int k = (this.width - this.backgroundWidth) / 2;
-        int l = (this.height - this.backgroundHeight) / 2;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, k, l, 0, 0, this.backgroundWidth, this.backgroundHeight, 256, 256);
+    protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+        int k = (this.width - this.imageWidth) / 2;
+        int l = (this.height - this.imageHeight) / 2;
+        context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, k, l, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
-        this.drawMouseoverTooltip(context, mouseX, mouseY);
+        this.renderTooltip(context, mouseX, mouseY);
     }
 
     @Override
@@ -38,6 +40,6 @@ public class DuctScreen extends HandledScreen<ScreenHandler> {
         super.init();
 
         // Center the title
-        titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
+        titleLabelX = (imageWidth - font.width(title)) / 2;
     }
 }

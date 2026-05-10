@@ -3,24 +3,26 @@ package net.gnomecraft.ductwork.data;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.gnomecraft.ductwork.Ductwork;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.concurrent.CompletableFuture;
 
+@NullMarked
 public class DuctworkBlockTagProvider extends FabricTagProvider.BlockTagProvider {
-    public DuctworkBlockTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public DuctworkBlockTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup registries) {
+    protected void addTags(HolderLookup.Provider registries) {
         this.valueLookupBuilder(Ductwork.DUCT_BLOCKS)
                 .add(Ductwork.COLLECTOR_BLOCK)
                 .add(Ductwork.DAMPER_BLOCK)
                 .add(Ductwork.DUCT_BLOCK);
 
-        this.valueLookupBuilder(BlockTags.PICKAXE_MINEABLE)
+        this.valueLookupBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(Ductwork.COLLECTOR_BLOCK)
                 .add(Ductwork.DAMPER_BLOCK)
                 .add(Ductwork.DUCT_BLOCK);
