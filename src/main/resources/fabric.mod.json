@@ -36,7 +36,7 @@
     "fabric-api": "*",
     "minecraft": ">=26.1 <26.2",
     "java": ">=25",
-    "cooldown-coordinator": ">=0.12.0-",
+    "cooldown-coordinator": ">=0.10.0-",
     "cloth-config": "*"
   }
 }
