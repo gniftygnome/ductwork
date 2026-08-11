@@ -34,9 +34,9 @@
   "depends": {
     "fabricloader": ">=0.18.0",
     "fabric-api": "*",
-    "minecraft": ">=26.1 <26.2",
+    "minecraft": ">=26.2 <26.3",
     "java": ">=25",
-    "cooldown-coordinator": ">=0.12.0-",
+    "cooldown-coordinator": ">=0.10.0-",
     "cloth-config": "*"
   }
 }

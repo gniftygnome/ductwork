@@ -1,7 +1,7 @@
 package net.gnomecraft.ductwork.mixin;
 
 import net.gnomecraft.ductwork.Ductwork;
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerPlayer;

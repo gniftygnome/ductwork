@@ -17,15 +17,15 @@ public class DuctworkBlockTagProvider extends FabricTagsProvider.BlockTagsProvid
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        this.valueLookupBuilder(Ductwork.DUCT_BLOCKS)
-                .add(Ductwork.COLLECTOR_BLOCK)
-                .add(Ductwork.DAMPER_BLOCK)
-                .add(Ductwork.DUCT_BLOCK);
+        this.tag(Ductwork.DUCT_BLOCKS)
+                .add(Ductwork.COLLECTOR_BLOCK_KEY)
+                .add(Ductwork.DAMPER_BLOCK_KEY)
+                .add(Ductwork.DUCT_BLOCK_KEY);
 
-        this.valueLookupBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(Ductwork.COLLECTOR_BLOCK)
-                .add(Ductwork.DAMPER_BLOCK)
-                .add(Ductwork.DUCT_BLOCK);
+        this.tag(BlockTags.MINEABLE_WITH_PICKAXE)
+                .add(Ductwork.COLLECTOR_BLOCK_KEY)
+                .add(Ductwork.DAMPER_BLOCK_KEY)
+                .add(Ductwork.DUCT_BLOCK_KEY);
     }
 
     @Override

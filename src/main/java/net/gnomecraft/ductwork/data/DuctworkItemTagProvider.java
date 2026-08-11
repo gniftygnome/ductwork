@@ -16,10 +16,10 @@ public class DuctworkItemTagProvider extends FabricTagsProvider.ItemTagsProvider
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        this.valueLookupBuilder(Ductwork.DUCT_ITEMS)
-                .add(Ductwork.COLLECTOR_ITEM)
-                .add(Ductwork.DAMPER_ITEM)
-                .add(Ductwork.DUCT_ITEM);
+        this.tag(Ductwork.DUCT_ITEMS)
+                .add(Ductwork.COLLECTOR_ITEM_KEY)
+                .add(Ductwork.DAMPER_ITEM_KEY)
+                .add(Ductwork.DUCT_ITEM_KEY);
     }
 
     @Override
